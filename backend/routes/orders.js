@@ -45,7 +45,7 @@ router.get('/bar', async (req, res) => {
   if (view === 'monthly') {
     query = `
       SELECT DATE_FORMAT(orderDate, '%Y-%m') as date, COUNT(*) as count
-      FROM orderstest
+      FROM orders
       WHERE orderDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 YEAR) AND CURDATE()
       GROUP BY DATE_FORMAT(orderDate, '%Y-%m')
       ORDER BY DATE_FORMAT(orderDate, '%Y-%m') DESC
@@ -53,7 +53,7 @@ router.get('/bar', async (req, res) => {
   } else if (view === 'yearly') {
     query = `
       SELECT DATE_FORMAT(orderDate, '%Y') as date, COUNT(*) as count
-      FROM orderstest
+      FROM orders
       WHERE orderDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 5 YEAR) AND CURDATE()
       GROUP BY DATE_FORMAT(orderDate, '%Y')
       ORDER BY DATE_FORMAT(orderDate, '%Y') DESC
@@ -61,7 +61,7 @@ router.get('/bar', async (req, res) => {
   } else {
     query = `
       SELECT DATE(orderDate) as date, COUNT(*) as count
-      FROM orderstest
+      FROM orders
       WHERE orderDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
       GROUP BY DATE(orderDate)
       ORDER BY DATE(orderDate) DESC
