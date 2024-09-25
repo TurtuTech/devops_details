@@ -56,7 +56,7 @@ router.post('/register', async (req, res) => {
 // Verify OTP
 router.post('/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
-
+  
   try {
     const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     const user = users[0];
@@ -147,4 +147,5 @@ router.post('/login', async (req, res) => {
 
 
 
-module.exports = router;
+ module.exports = router;
+ 

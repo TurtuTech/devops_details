@@ -44,27 +44,30 @@ router.get('/bar', async (req, res) => {
 
   if (view === 'monthly') {
     query = `
-      SELECT DATE_FORMAT(orderDate, '%Y-%m') as date, COUNT(*) as count
-      FROM orders
-      WHERE orderDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 YEAR) AND CURDATE()
-      GROUP BY DATE_FORMAT(orderDate, '%Y-%m')
-      ORDER BY DATE_FORMAT(orderDate, '%Y-%m') DESC
+        SELECT DATE_FORMAT(createdAt, '%Y-%m') as date, COUNT(*) as count
+        FROM orderManage.orders
+        WHERE createdAt >= NOW() - INTERVAL 12 MONTH
+        GROUP BY DATE_FORMAT(createdAt, '%Y-%m')
+        ORDER BY DATE_FORMAT(createdAt, '%Y-%m') DESC;
+
     `;
   } else if (view === 'yearly') {
     query = `
-      SELECT DATE_FORMAT(orderDate, '%Y') as date, COUNT(*) as count
-      FROM orders
-      WHERE orderDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 5 YEAR) AND CURDATE()
-      GROUP BY DATE_FORMAT(orderDate, '%Y')
-      ORDER BY DATE_FORMAT(orderDate, '%Y') DESC
+        SELECT YEAR(createdAt) as date, COUNT(*) as count
+        FROM orderManage.orders
+        WHERE createdAt >= NOW() - INTERVAL 5 YEAR
+        GROUP BY YEAR(createdAt)
+        ORDER BY YEAR(createdAt) DESC;
+
     `;
   } else {
     query = `
-      SELECT DATE(orderDate) as date, COUNT(*) as count
-      FROM orders
-      WHERE orderDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 6 DAY) AND CURDATE()
-      GROUP BY DATE(orderDate)
-      ORDER BY DATE(orderDate) DESC
+      SELECT DATE(createdAt) as date, COUNT(*) as count
+      FROM orderManage.orders
+      WHERE createdAt >= NOW() - INTERVAL 6 DAY
+      GROUP BY DATE(createdAt)
+      ORDER BY DATE(createdAt) DESC;
+
     `;
   }
 
