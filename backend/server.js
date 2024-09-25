@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 require('dotenv').config({ path: './backend/.env' }); 
 const cors = require('cors');
 
-
 // CORS options to allow specific IPs from the .env file
 const allowedOrigins = process.env.CLIENT_URL.split(',');
 

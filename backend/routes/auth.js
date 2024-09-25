@@ -8,7 +8,6 @@ const pool = require('./../config/db');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
- 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {

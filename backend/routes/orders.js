@@ -70,7 +70,6 @@ router.get('/bar', async (req, res) => {
 
     `;
   }
-
   try {
     const [results] = await pool.query(query);
     res.json(results);
@@ -79,8 +78,6 @@ router.get('/bar', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching data' });
   }
 });
-
-
 
 router.post('/assign', async (req, res) => {
   const { orderId, driverPhoneNumber, driverName, driverEmail, userId } = req.body;
