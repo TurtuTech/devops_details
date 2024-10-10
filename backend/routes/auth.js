@@ -9,7 +9,10 @@ const User = require('./../models/user');
 const DeliveryBoy = require('./../models/DeliveryBoy');
 const sequelize = require('sequelize');
 
+<<<<<<< HEAD
 // Set up nodemailer transporter
+=======
+>>>>>>> 04390e0e6aae7dcbd99d99bcda050c89da95905a
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -63,7 +66,7 @@ router.post('/register', async (req, res) => {
 // Verify OTP route
 router.post('/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
-
+  
   try {
     const user = await User.findOne({ where: { email } });
 
@@ -189,4 +192,5 @@ const deleteUnverifiedUsers = async () => {
 // Schedule the cleanup task to run every 5 minutes
 setInterval(deleteUnverifiedUsers, 3 * 60 * 1000);
 
-module.exports = router;
+ module.exports = router;
+ 

@@ -49,7 +49,65 @@ router.get('/orders/assigned', async (req, res) => {
     res.status(500).json({ error: 'Error fetching assigned orders' });
   }
 });
+<<<<<<< HEAD
 // Assign an order to a driver
+=======
+
+router.get('/admin/orders', async (req, res) => {
+  try {
+    const [results] = await pool.query('SELECT * FROM orders WHERE status IN (?, ?)', ['active','picked']);
+    res.json(results);
+   
+    
+  } catch (err) {
+    console.error('Error fetching assigned orders:', err);
+    res.status(500).json({ error: 'Error fetching assigned orders' });
+  }
+});
+
+
+router.get('/bar', async (req, res) => {
+  const view = req.query.view || 'weekly';
+  let query;
+
+  if (view === 'monthly') {
+    query = `
+        SELECT DATE_FORMAT(createdAt, '%Y-%m') as date, COUNT(*) as count
+        FROM orderManage.orders
+        WHERE createdAt >= NOW() - INTERVAL 12 MONTH
+        GROUP BY DATE_FORMAT(createdAt, '%Y-%m')
+        ORDER BY DATE_FORMAT(createdAt, '%Y-%m') DESC;
+
+    `;
+  } else if (view === 'yearly') {
+    query = `
+        SELECT YEAR(createdAt) as date, COUNT(*) as count
+        FROM orderManage.orders
+        WHERE createdAt >= NOW() - INTERVAL 5 YEAR
+        GROUP BY YEAR(createdAt)
+        ORDER BY YEAR(createdAt) DESC;
+
+    `;
+  } else {
+    query = `
+      SELECT DATE(createdAt) as date, COUNT(*) as count
+      FROM orderManage.orders
+      WHERE createdAt >= NOW() - INTERVAL 6 DAY
+      GROUP BY DATE(createdAt)
+      ORDER BY DATE(createdAt) DESC;
+
+    `;
+  }
+  try {
+    const [results] = await pool.query(query);
+    res.json(results);
+  } catch (err) {
+    console.error(err); 
+    res.status(500).json({ error: 'An error occurred while fetching data' });
+  }
+});
+
+>>>>>>> 04390e0e6aae7dcbd99d99bcda050c89da95905a
 router.post('/assign', async (req, res) => {
   const { orderId, driverPhoneNumber, driverName, userId } = req.body;
   try {
