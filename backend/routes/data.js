@@ -1,133 +1,259 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('./../config/db');
-const { sendEmail } = require('./../Services/emailConformations');
+const Order = require('./../models/Order');
+const Customer = require('./../models/Customer');
+
+
+// Route to submit customer data and order
+// router.post('/submit', async (req, res) => {
+//     const {
+//         phoneNumber,
+//         name,
+//         email,
+//         pickupAddress,
+//         dropAddress,
+//         content,
+//         weight,
+//         pickupDate,
+//         pickupTime,
+//         dropTime, // Ensure this is a valid time string
+//         receiverPhonenumber
+//     } = req.body;
+
+//     try {
+//         // Validate and format dropTime
+//         let formattedDropTime;
+//         // Check the dropTime value
+//         if (dropTime === '30min') {
+//             formattedDropTime = 30 ; // Store as "30 min"
+//         } else if (dropTime === '60min') {
+//             formattedDropTime = 60; // Store as "1 hour"
+//         } else {
+//             formattedDropTime = dropTime; // Fallback to the original value if not matched
+//         }
+
+//          // Check if the customer already exists
+//          let customer = await Customer.findOne({ where: { email } });
+
+//          // If customer does not exist, create a new one
+//          if (!customer) {
+//         // Assuming you have Customer and Order models
+//        customer = await Customer.create({
+//             phoneNumber,
+//             name,
+//             email,
+//             pickupAddress,
+//             dropAddress,
+//             content,
+//             weight,
+//             pickupDate,
+//             pickupTime,
+//             dropTime: formattedDropTime, // Use the formatted drop time
+//             receiverPhonenumber
+//         });
+//     }
+//         await Order.create({
+//             phoneNumber,
+//             name,
+//             email,
+//             pickupAddress,
+//             dropAddress,
+//             content,
+//             weight,
+//             pickupDate,
+//             pickupTime,
+//             dropTime: formattedDropTime, // Use the formatted drop time
+//             receiverPhonenumber,
+//             status: 'pending' // Set status to pending
+//         });
+
+//         res.status(200).send('Data inserted successfully into both tables');
+//     } catch (err) {
+//         console.error('Error inserting data into both tables:', err);
+//         res.status(500).send('Error inserting data');
+//     }
+// });
 
 router.post('/submit', async (req, res) => {
     const {
-      phoneNumber,
-      name,
-      email,
-      pickupAddress,
-      dropAddress,
-      content,
-      weight,
-      pickupDate,
-      pickupTime,
-      dropTime,
-      receiverPhonenumber
+        serviceType, // "Delivery Now" or "Schedule for Later"
+        name,
+        phoneNumber,
+        email,
+        weight,
+        pickupAddress,
+        dropAddress,
+        content,
+        deliveryInstructions, // optional
+        receiverPhonenumber,
+        receiverName,
+        pickupDate, // only for 'Schedule for Later'
+        pickupTime  // only for 'Schedule for Later'
     } = req.body;
-  
-    const customerQuery = 'INSERT INTO customer_data (phoneNumber, name, email, pickupAddress, dropAddress, content, weight, pickupDate, pickupTime, dropTime,receiverPhonenumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)';
-    const orderQuery = 'INSERT INTO orders (phoneNumber, name, email, pickupAddress, dropAddress, content, weight, pickupDate, pickupTime, dropTime, receiverPhonenumber,status ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)';
-  
-  
-    const values = [phoneNumber, name, email, pickupAddress, dropAddress, content, weight, pickupDate, pickupTime, dropTime,receiverPhonenumber];
-    const orderValues = [...values, 'pending']; // Add 'pending' status to the values for the orders table
-  
-    const connection = await pool.getConnection(); // Get a connection from the pool
-  
-    try {
-      await connection.beginTransaction(); // Start transaction
-  
-      // Insert into customer_data
-      await connection.query(customerQuery, values);
-  
-      // Insert into orders
-      await connection.query(orderQuery, orderValues);
-  
-      await connection.commit(); // Commit transaction
-      res.status(200).send('Data inserted successfully into both tables');
-    } catch (err) {
-      await connection.rollback(); // Rollback transaction on error
-      console.error('Error inserting data into both tables:', err);
-      res.status(500).send('Error inserting data');
-    } finally {
-      connection.release(); // Release connection back to the pool
-    }
-  });
 
+    try {
+        // Check if the customer already exists by email or phone number
+        let customer = await Customer.findOne({ where: { email } });
+        if (!customer) {
+            customer = await Customer.create({
+                name,
+                phoneNumber,
+                email,
+                pickupAddress, // Assuming this is customer-specific
+                dropAddress,   // Assuming this is customer-specific
+                receiverPhonenumber, // Assuming this is customer-specific
+                receiverName,
+                content,
+                weight,
+            });
+        }
+
+        // Handle immediate delivery (Delivery Now)
+        if (serviceType === "Delivery Now") {
+            // Proceed without scheduling fields
+            await Order.create({
+                phoneNumber,
+                name,
+                email,
+                weight,
+                pickupAddress,
+                dropAddress,
+                content,
+                deliveryInstructions,
+                receiverPhonenumber,
+                receiverName,
+                status: 'pending', // Default status
+            });
+            res.status(200).send('Immediate delivery order created successfully');
+        }
+        // Handle scheduled delivery (Schedule for Later)
+        else if (serviceType === "Schedule for Later") {
+            // Validate required fields for scheduled delivery
+            if (!pickupDate || !pickupTime) {
+                return res.status(400).send('Pickup date and time are required for scheduled deliveries');
+            }
+
+            // Proceed with scheduling fields
+            await Order.create({
+                phoneNumber,
+                name,
+                email,
+                weight,
+                pickupAddress,
+                dropAddress,
+                content,
+                deliveryInstructions,
+                receiverPhonenumber,
+                receiverName,
+                pickupDate,  // Schedule pickup date
+                pickupTime,  // Schedule pickup time
+                status: 'pending', // Default status
+            });
+            res.status(200).send('Scheduled delivery order created successfully');
+        } else {
+            res.status(400).send('Invalid service type');
+        }
+    } catch (err) {
+        console.error('Error processing order:', err);
+        res.status(500).send('Error creating the order');
+    }
+});
+
+
+router.post('usersubmit', async (req, res) => {
+    const {
+        serviceType, // "Delivery Now" or "Schedule for Later"
+        name,
+        phoneNumber,
+        email,
+        weight,
+        pickupAddress,
+        dropAddress,
+        content,
+        deliveryInstructions, // optional
+        receiverPhonenumber,
+        receiverName,
+        pickupDate, // only for 'Schedule for Later'
+        pickupTime  // only for 'Schedule for Later'
+    } = req.body;
+
+    try {
+        // Check if the customer already exists by email or phone number
+        let customer = await Customer.findOne({ where: { email } });
+        if (!customer) {
+            customer = await Customer.create({
+                name,
+                phoneNumber,
+                email,
+                pickupAddress, // Assuming this is customer-specific
+                dropAddress,   // Assuming this is customer-specific
+                receiverPhonenumber, // Assuming this is customer-specific
+                receiverName,
+                content,
+                weight,
+            });
+        }
+
+        // Handle immediate delivery (Delivery Now)
+        if (serviceType === "Delivery Now") {
+            // Proceed without scheduling fields
+            await Order.create({
+                phoneNumber,
+                name,
+                email,
+                weight,
+                pickupAddress,
+                dropAddress,
+                content,
+                deliveryInstructions,
+                receiverPhonenumber,
+                receiverName,
+                status: 'pending', // Default status
+            });
+            res.status(200).send('Immediate delivery order created successfully');
+        }
+        // Handle scheduled delivery (Schedule for Later)
+        else if (serviceType === "Schedule for Later") {
+            // Validate required fields for scheduled delivery
+            if (!pickupDate || !pickupTime) {
+                return res.status(400).send('Pickup date and time are required for scheduled deliveries');
+            }
+
+            // Proceed with scheduling fields
+            await Order.create({
+                phoneNumber,
+                name,
+                email,
+                weight,
+                pickupAddress,
+                dropAddress,
+                content,
+                deliveryInstructions,
+                receiverPhonenumber,
+                receiverName,
+                pickupDate,  // Schedule pickup date
+                pickupTime,  // Schedule pickup time
+                status: 'pending', // Default status
+            });
+            res.status(200).send('Scheduled delivery order created successfully');
+        } else {
+            res.status(400).send('Invalid service type');
+        }
+    } catch (err) {
+        console.error('Error processing order:', err);
+        res.status(500).send('Error creating the order');
+    }
+});
+
+// Route to get all customer data
 router.get('/userData', async (req, res) => {
-    try {
-      const [results] = await pool.query('SELECT * FROM customer_data'); // replace with your actual table name
-      res.json(results);
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).json({ error: 'Error fetching data' });
-    }
-  });
-
-  router.get('/nonapproval', async (req, res) => {
-    try {
-      const [results] = await pool.query('SELECT * FROM users WHERE isApproved = 0 '); // replace with your actual table name
-      res.json(results); 
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      res.status(500).json({ error: 'Error fetching data' });
-    }
-  });
-
-  // Update isApproved to 1
-router.post('/accept/:id', async (req, res) => {
-  const { id } = req.params;
   try {
-    await pool.query('UPDATE users SET isApproved = 1 WHERE id = ?', [id]);
-    res.status(200).json({ message: 'Request accepted' });
-    const [userDetails]= await pool.query('SELECT email, name from users where id = ?',[id]);
-    const userEmail = userDetails[0]?.email;
-    const userName = userDetails[0]?.name;
-
-    const ApprovedMessage = `
-    Dear ${userName},
-  
-    We’re excited to let you know that your account has been approved by our admin! You can now Login to your Account.
-  
-    Welcome to the Turtu family!
-  
-    Best regards,
-    The Turtu Team
-  `;
-  
-  await sendEmail(userEmail, 'Your Account Has Been Approved', ApprovedMessage);
-
+      const users = await Customer.findAll(); // Assuming you have a Customer model
+      res.json(users);
   } catch (err) {
-    console.error('Error updating request:', err);
-    res.status(500).json({ error: 'Error updating request' });
+      console.error('Error fetching data:', err);
+      res.status(500).json({ error: 'Error fetching data' });
   }
 });
 
-// Delete request
-router.delete('/reject/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    await pool.query('DELETE FROM users WHERE id = ?', [id]);
-    res.status(200).json({ message: 'Request rejected' });
-
-    const [userDetails]= await pool.query('SELECT email, name from users where id = ?',[id]);
-    const userEmail = userDetails[0]?.email;
-    const userName = userDetails[0]?.name;
-
-    const RejectMessage = `
-    Dear ${userName},
-  
-    We regret to inform you that your account application has not been approved at this time. We appreciate your interest in joining Turtu and encourage you to reapply in the future.
-  
-    If you have any questions or need further assistance, please feel free to reach out.
-  
-    Thank you for your understanding.
-  
-    Best regards,
-    The Turtu Team
-  `;
-  
-  await sendEmail(userEmail, 'Your Account Application Status', RejectMessage);
-
-  } catch (err) {
-    console.error('Error deleting request:', err);
-    res.status(500).json({ error: 'Error deleting request' });
-  }
-});
-
-
-
-module.exports = router;
+module.exports = router; 
