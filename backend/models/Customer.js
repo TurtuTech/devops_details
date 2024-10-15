@@ -50,7 +50,8 @@ const Customer = sequelize.define('Customer', {
         type: DataTypes.STRING,
         allowNull: false,
     },   
-}, {
+}, 
+{
     tableName: 'customers',
     timestamps: false,
 });

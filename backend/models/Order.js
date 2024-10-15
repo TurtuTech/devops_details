@@ -63,7 +63,8 @@ const Orders = sequelize.define('orders', {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
   },
-}, {
+}, 
+{
   timestamps: false,
   tableName: 'orders',
 });

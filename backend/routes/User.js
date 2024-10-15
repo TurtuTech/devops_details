@@ -24,9 +24,6 @@ router.get('/customer_data/:phoneNumber', async (req, res) => {
     }
 });
 
-
-
-
 router.get('/testusers/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -45,7 +42,6 @@ router.get('/testusers/:userId', async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
 router.get('/drivers', async (req, res) => {
   try {
       const drivers = await DeliveryBoy.findAll({

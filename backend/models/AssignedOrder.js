@@ -87,7 +87,8 @@ const AssignedOrder = sequelize.define('AssignedOrder', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
-}, {
+}, 
+{
   timestamps: false,
   tableName: 'assigned_orders',  // Ensures the model matches the existing table name
 });

@@ -43,7 +43,8 @@ const DeliveryBoy = sequelize.define('DeliveryBoy', {
     allowNull: false,
     field: 'user_id',
   },
-}, {
+}, 
+{
   timestamps: false,
 });
 
