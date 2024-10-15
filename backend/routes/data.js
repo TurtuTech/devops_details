@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Order = require('./../models/Order');
-const Customer = require('./../models/Customer');
+const Order = require('../models/order');
+const Customer = require('../models/customer');
 
 
 // Route to submit customer data and order
@@ -194,7 +194,6 @@ router.post('usersubmit', async (req, res) => {
                 weight,
             });
         }
-
         // Handle immediate delivery (Delivery Now)
         if (serviceType === "Delivery Now") {
             // Proceed without scheduling fields
@@ -246,7 +245,6 @@ router.post('usersubmit', async (req, res) => {
         res.status(500).send('Error creating the order');
     }
 });
-
 
 // Route to get all customer data
 router.get('/userData', async (req, res) => {

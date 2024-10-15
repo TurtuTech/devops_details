@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { sendEmail } = require('./../Services/emailConformations');
 const { generateOTP} =  require('./../Services/genarateOtp')
-const Order = require('../models/Order');
-const AssignedOrder = require('../models/AssignedOrder');
-const DeliveryBoy = require('../models/DeliveryBoy');
+const Order = require('../models/order');
+const AssignedOrder = require('../models/assignedOrder');
+const DeliveryBoy = require('../models/deliveryBoy');
 const { Op } = require('sequelize');
 
 // Fetch pending orders for dilivery now 

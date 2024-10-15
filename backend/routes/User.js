@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const Customer = require('../models/Customer');
+const Customer = require('../models/customer');
 const User = require('../models/user');
-const DeliveryBoy = require('../models/DeliveryBoy');
-
-
+const DeliveryBoy = require('../models/deliveryBoy');
 
 router.get('/customer_data/:phoneNumber', async (req, res) => {
     const { phoneNumber } = req.params;
