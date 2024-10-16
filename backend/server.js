@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 
 // Import route modules
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/User');
+const userRoutes = require('./routes/user');
 const dataRoutes = require('./routes/data');
 const dataOrders = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
@@ -25,7 +25,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  optionsSuccessStatus: 200 // For legacy browsers
+  optionsSuccessStatus: 200 // For legacy browsers 
 };
 
 // Apply CORS middleware with specific options
@@ -42,7 +42,7 @@ app.use('/api/admin',adminRoutes);
  const start = async () => {
   try {
     // Use alter to modify the tables according to model definitions
-    await sequelize.sync({ alter: true, force: false  }); 
+    await sequelize.sync({ alter: false, force: false  }); 
     console.log('Database synced successfully');
     
     const PORT = process.env.PORT || 5000; // Default to 5000 if PORT not set

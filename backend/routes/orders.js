@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { sendEmail } = require('./../Services/emailConformations');
-const { generateOTP} =  require('./../Services/genarateOtp')
+const { sendEmail } = require('../services/emailConformations');
+const { generateOTP} =  require('../services/genarateOtp')
 const Order = require('../models/order');
 const AssignedOrder = require('../models/assignedOrder');
 const DeliveryBoy = require('../models/deliveryBoy');

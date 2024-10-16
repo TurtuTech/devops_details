@@ -128,8 +128,18 @@ router.post('/login', async (req, res) => {
 
   // Regular user login
   const user = await User.findOne({ where: { email } });
-
   if (user && await bcrypt.compare(password, user.password)) {
+    // Invalidate existing tokens
+    await Token.destroy({
+      where: {
+        userId: user.id,
+        // Optional: If you want to add a condition to only delete valid tokens
+        expiresAt: {
+          [Op.gt]: new Date(), // Only delete if the token is not expired
+        },
+      },
+    });
+
     const token = generateToken({
       id: user.id,
       email: user.email,
@@ -157,10 +167,8 @@ router.post('/login', async (req, res) => {
       },
     });
   }
-
   res.status(400).json({ error: 'Invalid credentials / wait for admin approval' });
 });
-
 // Logout route (invalidate token)
 router.post('/logout', async (req, res) => {
   const token = req.headers['authorization'];

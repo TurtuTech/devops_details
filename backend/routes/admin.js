@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('./../models/user');
-const Order = require('./../models/order');
-const DeliveryBoy = require('./../models/deliveryBoy');
+const Order = require('../models/order');
+const DeliveryBoy = require('../models/deliveryBoy');
 const AssignedOrder = require('../models/assignedOrder');
-const { sendEmail } = require('./../Services/emailConformations');
+const { sendEmail } = require('../services/emailConformations');
 const sequelize = require('../config/sequelize');
 const { Op } = require('sequelize');
 
