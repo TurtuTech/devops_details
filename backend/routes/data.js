@@ -3,7 +3,7 @@ const router = express.Router();
 const Order = require('../models/order');
 const Customer = require('../models/customer');
 
-router.post('/submit', async (req, res) => {
+router.post('/submit',  async (req, res) => {
     const {
         serviceType, // "Delivery Now" or "Schedule for Later"
         name,
@@ -176,7 +176,7 @@ router.post('usersubmit', async (req, res) => {
 });
 
 // Route to get all customer data
-router.get('/userData', async (req, res) => {
+router.get('/userData',async (req, res) => {
   try {
       const users = await Customer.findAll(); // Assuming you have a Customer model
       res.json(users);

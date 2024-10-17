@@ -10,10 +10,12 @@ const User = require('../models/user');
 const DeliveryBoy = require('../models/deliveryBoy');
 const Token = require('../models/token'); 
 
+const checkTokenBlacklist = require('../middlewares/tokenMiddleware'); 
+
 // Constants
 const OTP_EXPIRATION_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
 const OTP_RESEND_TIME = 3 * 60 * 1000; // 3 minutes in milliseconds
-const JWT_EXPIRATION = '1h';
+const JWT_EXPIRATION = '1hr';
 
 // Create a nodemailer transporter instance
 const transporter = nodemailer.createTransport({
@@ -104,7 +106,8 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
-// Login route (only store token here)
+
+// Login route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -129,30 +132,11 @@ router.post('/login', async (req, res) => {
   // Regular user login
   const user = await User.findOne({ where: { email } });
   if (user && await bcrypt.compare(password, user.password)) {
-    // Invalidate existing tokens
-    await Token.destroy({
-      where: {
-        userId: user.id,
-        // Optional: If you want to add a condition to only delete valid tokens
-        expiresAt: {
-          [Op.gt]: new Date(), // Only delete if the token is not expired
-        },
-      },
-    });
-
     const token = generateToken({
       id: user.id,
       email: user.email,
       role: user.role,
       phonenumber: user.phonenumber,
-    });
-
-    const tokenExpiresAt = new Date(Date.now() + 3600000); // Token valid for 1 hour
-    await Token.create({
-      userId: user.id,
-      token,
-      expiresAt: tokenExpiresAt,
-      createdAt: new Date(),
     });
 
     return res.json({
@@ -167,20 +151,33 @@ router.post('/login', async (req, res) => {
       },
     });
   }
+
   res.status(400).json({ error: 'Invalid credentials / wait for admin approval' });
 });
-// Logout route (invalidate token)
+
+// Logout route (blacklist the token)
 router.post('/logout', async (req, res) => {
-  const token = req.headers['authorization'];
+  const token = req.headers['authorization']?.split(' ')[1]; // Extract token from header
+  const userId = req.user.id; // Extract userId from the verified token
 
   if (token) {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Remove the token from the database
-    await Token.destroy({ where: { token } });
+      const tokenRecord = await Token.findOne({ where: { token } });
 
-    return res.json({ message: 'Logged out successfully' });
+      if (!tokenRecord) {
+          // Save the blacklisted token
+          await Token.create({
+              token,
+              userId: userId, // Use the userId from the request
+              expiresAt: new Date(Date.now() + 3600000), // Set expiration time
+              isBlacklisted: true,
+          });
+
+          return res.json({ message: 'Logged out and token blacklisted successfully' });
+      }
+
+      return res.json({ message: 'Token already blacklisted' });
   } else {
-    return res.status(400).json({ error: 'Token not provided' });
+      return res.status(400).json({ error: 'Token not provided' });
   }
 });
 
@@ -204,5 +201,23 @@ const deleteUnverifiedUsers = async () => {
 // Schedule task every 3 minutes (unchanged)
 setInterval(deleteUnverifiedUsers, OTP_RESEND_TIME);
 
+
+// Cleanup function to delete all blacklisted tokens without checking expiration
+const cleanupAllBlacklistedTokens = async () => {
+  try {
+    // Find and delete all blacklisted tokens
+    const result = await Token.destroy({
+      where: {
+        isBlacklisted: 1, // Only delete blacklisted tokens
+      },
+    });
+
+    console.log(`Deleted ${result} blacklisted tokens`);
+  } catch (err) {
+    console.error('Error cleaning up blacklisted tokens:', err);
+  }
+};
+
+setInterval(cleanupAllBlacklistedTokens, 3600 * 1000);
 module.exports = router;
 

@@ -4,6 +4,7 @@ const Customer = require('../models/customer');
 const User = require('../models/user');
 const DeliveryBoy = require('../models/deliveryBoy');
 const Pricing = require('../models/pricing');
+ 
 
 router.get('/customer_data/:phoneNumber', async (req, res) => {
     const { phoneNumber } = req.params;
@@ -24,7 +25,6 @@ router.get('/customer_data/:phoneNumber', async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
-
 router.get('/testusers/:userId', async (req, res) => {
   const { userId } = req.params;
 
@@ -43,7 +43,7 @@ router.get('/testusers/:userId', async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-router.get('/drivers', async (req, res) => {
+router.get('/drivers',  async (req, res) => {
   try {
       const drivers = await DeliveryBoy.findAll({
           where: {
@@ -62,8 +62,6 @@ router.get('/drivers', async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
-// Function to fetch pricing from the database
 async function getPricing() {
     return await Pricing.findAll(); // Fetch all pricing records
 }
@@ -73,17 +71,21 @@ async function calculateDistanceFare(distance) {
     const pricing = await getPricing();
     const distancePricing = pricing.find(p => p.weight_bracket_start === 0); // Get distance pricing
 
-    const baseFare = distancePricing.base_fare; // ₹50 for up to 3 km
-    const extraFarePerKm = distancePricing.extra_fare_per_km; // ₹12 for each km after 3 km
-    const baseDistance = distancePricing.base_distance; // base distance in km
+    const baseFare = distancePricing.base_fare; // Base fare for up to base distance (3 km)
+    const extraFarePerKm = distancePricing.extra_fare_per_km; // Extra fare for each km after base distance
+    const baseDistance = distancePricing.base_distance; // Base distance (3 km)
 
+    let distanceFare;
     if (distance <= baseDistance) {
-        return baseFare; // For distance <= 3 km, charge the base fare
+        distanceFare = baseFare; // For distance <= base distance, charge the base fare
     } else {
         const extraDistance = distance - baseDistance;
         const extraFare = extraDistance * extraFarePerKm;
-        return baseFare + extraFare; // Total fare = base fare + extra fare
+        distanceFare = baseFare + extraFare; // Total fare = base fare + extra fare
     }
+
+    // Return an object with all the relevant data
+    return { baseFare, extraFarePerKm, distanceFare };
 }
 
 // Function to calculate weight fare
@@ -96,13 +98,15 @@ async function calculateWeightFare(weight) {
 
 // Function to calculate total fare
 async function calculateTotalFare(distance, weight) {
-    const distanceFare = await calculateDistanceFare(distance);
+    const { baseFare, extraFarePerKm, distanceFare } = await calculateDistanceFare(distance);
     const weightFare = await calculateWeightFare(weight);
-    const totalFare = distanceFare + weightFare;
+    const totalFare = Math.ceil(distanceFare + weightFare); // Round up to nearest whole number
 
-    return Math.ceil(totalFare);
+    // Return the total fare along with the baseFare and extraFarePerKm
+    return { totalFare, baseFare, extraFarePerKm };
 }
 
+// Route to calculate fare
 router.post('/calculate_fare', async (req, res) => {
     const { distance, weight } = req.body;
 
@@ -116,8 +120,17 @@ router.post('/calculate_fare', async (req, res) => {
     }
 
     try {
-        const totalAmount = await calculateTotalFare(distance, weight);
-        res.json({ totalAmount: `₹${totalAmount}` });
+        // Get total fare, base fare, and extra fare per km
+        const { totalFare, baseFare, extraFarePerKm } = await calculateTotalFare(distance, weight);
+        
+        // Return the response with all required information
+        res.json({ 
+            totalAmount: `₹${totalFare}`, 
+            baseFare: `${baseFare}`, 
+            extraFarePerKm: `₹${extraFarePerKm}`,
+            distance:`${distance}`,
+            weight:`${weight}`
+        });
     } catch (err) {
         console.error('Error calculating fare:', err);
         res.status(500).json({ message: 'Internal Server Error' });
