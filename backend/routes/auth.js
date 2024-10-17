@@ -10,7 +10,7 @@ const User = require('../models/user');
 const DeliveryBoy = require('../models/deliveryBoy');
 const Token = require('../models/token'); 
 
-const checkTokenBlacklist = require('../middlewares/tokenMiddleware'); 
+
 
 // Constants
 const OTP_EXPIRATION_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds

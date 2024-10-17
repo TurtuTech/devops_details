@@ -6,10 +6,10 @@ const Order = require('../models/order');
 const AssignedOrder = require('../models/assignedOrder');
 const DeliveryBoy = require('../models/deliveryBoy');
 const { Op } = require('sequelize');
-const checkTokenBlacklist = require('../middlewares/tokenMiddleware'); 
+
 
 // Fetch pending orders for dilivery now 
-router.get('/orders', checkTokenBlacklist, async (req, res) => {
+router.get('/orders',  async (req, res) => {
   try {
     const orders = await Order.findAll({
       where: {              
@@ -26,7 +26,7 @@ router.get('/orders', checkTokenBlacklist, async (req, res) => {
   }
 });
 
-router.get('/orders/scheduled', checkTokenBlacklist, async (req, res) => {
+router.get('/orders/scheduled',  async (req, res) => {
   try {
     const orders = await Order.findAll({
       where: {
@@ -45,7 +45,7 @@ router.get('/orders/scheduled', checkTokenBlacklist, async (req, res) => {
 
 
 // Fetch assigned orders
-router.get('/orders/assigned', checkTokenBlacklist, async (req, res) => {
+router.get('/orders/assigned',  async (req, res) => {
   try {
     const orders = await AssignedOrder.findAll({ where: { status: ['active', 'picked', 'delivered'] } });
     res.json(orders);
@@ -58,7 +58,7 @@ router.get('/orders/assigned', checkTokenBlacklist, async (req, res) => {
 
 
 // Assign an order to a driver
-router.post('/assign', checkTokenBlacklist, async (req, res) => {
+router.post('/assign',  async (req, res) => {
   const { orderId, driverPhoneNumber, driverName, userId } = req.body;
 
   try {
@@ -146,7 +146,7 @@ router.post('/assign', checkTokenBlacklist, async (req, res) => {
   }
 });
 
-router.get('/assigned-orders/:driver_id', checkTokenBlacklist, async (req, res) => {
+router.get('/assigned-orders/:driver_id',  async (req, res) => {
   const { driver_id } = req.params;
   try {
     const assignedOrders = await AssignedOrder.findAll({
@@ -164,7 +164,7 @@ router.get('/assigned-orders/:driver_id', checkTokenBlacklist, async (req, res) 
 });
 
 
-router.get('/:orderId', checkTokenBlacklist, async (req, res) => {
+router.get('/:orderId',  async (req, res) => {
   const { orderId } = req.params;
   console.log(orderId);
   try {
@@ -181,7 +181,7 @@ router.get('/:orderId', checkTokenBlacklist, async (req, res) => {
   }
 });
 
-router.put('/update-status', async (req, res) => {
+router.put('/update-status',  async (req, res) => {
   const { orderId, status, driverUserId } = req.body;
 
   // Validate request parameters
@@ -269,7 +269,7 @@ router.put('/update-status', async (req, res) => {
   }
 });
 
-router.post('/verify-delivery-otp', async (req, res) => {
+router.post('/verify-delivery-otp',  async (req, res) => {
   const { orderId, providedOtp } = req.body;
 
   if (!orderId || !providedOtp) {
