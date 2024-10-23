@@ -45,7 +45,7 @@ app.use('/api/admin',adminRoutes);
     await sequelize.sync({ alter: false, force: false  }); 
     console.log('Database synced successfully');
     
-    const PORT = process.env.PORT || 5000; // Default to 5000 if PORT not set
+    const PORT = process.env.PORT ; // Default to 5000 if PORT not set
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
     });
