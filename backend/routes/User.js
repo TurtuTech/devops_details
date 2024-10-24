@@ -192,7 +192,7 @@ router.get('/users/:userId', orderManagementController.getUserData);
 router.get('/drivers/available', orderManagementController.getAvailableDrivers);
 
 // Route to calculate fare based on distance and weight
-router.post('/fare/calculate', orderManagementController.calculateFare);
+router.post('/calculate_fare', orderManagementController.calculateFare);
 
 // Route to get distance matrix
 router.get('/distance-matrix', orderManagementController.getDistanceMatrix);

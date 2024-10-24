@@ -107,7 +107,7 @@ async function calculateTotalFare(distance, weight) {
     const weightFare = await calculateWeightFare(weight);
     const totalFare = Math.ceil(distanceFare + weightFare);
 
-    return { totalFare, baseFare, extraFarePerKm };
+    return { totalFare, baseFare, extraFarePerKm,weightFare};
 }
 
 // Calculate fare based on distance and weight
@@ -123,12 +123,13 @@ exports.calculateFare = async (req, res) => {
     }
 
     try {
-        const { totalFare, baseFare, extraFarePerKm } = await calculateTotalFare(distance, weight);
+        const { totalFare, baseFare, extraFarePerKm,weightFare} = await calculateTotalFare(distance, weight);
         
         res.json({
             totalAmount: `₹${totalFare}`,
             baseFare: `₹${baseFare}`,
             extraFarePerKm: `₹${extraFarePerKm}`,
+            weightFare: `₹${weightFare}`, 
             distance,
             weight,
         });
