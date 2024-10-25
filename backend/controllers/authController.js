@@ -1,11 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: './backend/.env' });
-const nodemailer = require('nodemailer');
+// const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
-const User = require('../models/user');
-const DeliveryBoy = require('../models/deliveryBoy');
+const Employee = require('../models/employee');
 const Token = require('../models/token'); 
 const { sendEmail } = require('../services/emailConformations'); // Adjust the path as needed
 
@@ -14,14 +13,14 @@ const OTP_EXPIRATION_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
 const OTP_RESEND_TIME = 3 * 60 * 1000; // 3 minutes in milliseconds
 const JWT_EXPIRATION = '1hr';
 
-// Create a nodemailer transporter instance
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// // Create a nodemailer transporter instance
+// const transporter = nodemailer.createTransport({
+//   service: 'Gmail',
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 // Utility functions
 const generateToken = (payload) => {
@@ -40,7 +39,7 @@ const registerUser = async (req, res) => {
   const otp = crypto.randomInt(100000, 999999);
   const otpExpires = new Date(Date.now() + OTP_EXPIRATION_TIME);
 
-  const newUser = await User.create({
+  const newUser = await Employee.create({
     name,
     email,
     password: hashedPassword,
@@ -65,23 +64,10 @@ const registerUser = async (req, res) => {
 
 const verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
-  const user = await User.findOne({ where: { email } });
+  const user = await Employee.findOne({ where: { email } });
 
   if (user && user.otp === otp && new Date() < user.otpExpires) {
     await user.update({ otp: null, otpExpires: null, isVerified: true });
-
-    if (user.role === 'delivery boy') {
-      await DeliveryBoy.create({
-        name: user.name,
-        email: user.email,
-        password: user.password,
-        phonenumber: user.phonenumber,
-        role: user.role,
-        created_at: new Date(),
-        user_id: user.id,
-      });
-    }
-
     res.status(200).json({ message: 'OTP verified successfully' });
   } else {
     res.status(400).json({ error: 'Invalid or expired OTP' });
@@ -108,7 +94,7 @@ const loginUser = async (req, res) => {
     });
   }
 
-  const user = await User.findOne({ where: { email } });
+  const user = await Employee.findOne({ where: { email } });
   if (user && await bcrypt.compare(password, user.password)) {
     const token = generateToken({
       id: user.id,
@@ -158,7 +144,7 @@ const logoutUser = async (req, res) => {
 
 const deleteUnverifiedUsers = async () => {
   const now = new Date();
-  const expiredUsers = await User.findAll({
+  const expiredUsers = await Employee.findAll({
     where: {
       isVerified: false,
       createdAt: { [Op.lt]: new Date(now - OTP_RESEND_TIME) },

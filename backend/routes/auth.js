@@ -220,12 +220,12 @@
 const express = require('express');
 const router = express.Router();
 const checkTokenBlacklist = require('../middlewares/tokenMiddleware');
-const userController= require('../controllers/userController');
+const authController= require('../controllers/authController');
 
 // Routes
-router.post('/register',userController.registerUser);
-router.post('/verify-otp', userController.verifyOtp);
-router.post('/login', userController.loginUser);
-router.post('/logout', checkTokenBlacklist,userController.logoutUser);
+router.post('/register',authController.registerUser);
+router.post('/verify-otp', authController.verifyOtp);
+router.post('/login', authController.loginUser);
+router.post('/logout', checkTokenBlacklist,authController.logoutUser);
 
 module.exports = router;

@@ -11,7 +11,7 @@ const AssignedOrder = sequelize.define('AssignedOrder', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'orders',
+      model: 'Orders',
       key: 'id',
     },
   },
@@ -90,7 +90,7 @@ const AssignedOrder = sequelize.define('AssignedOrder', {
 }, 
 {
   timestamps: false,
-  tableName: 'assigned_orders',  // Ensures the model matches the existing table name
+  tableName: 'Assigned_orders',  // Ensures the model matches the existing table name
 });
 
 module.exports = AssignedOrder;

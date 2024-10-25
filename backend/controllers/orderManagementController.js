@@ -1,6 +1,6 @@
 require('dotenv').config({ path: './backend/.env' });
 const Customer = require('../models/customer');
-const User = require('../models/user');
+const Employee = require('../models/employee');
 const DeliveryBoy = require('../models/deliveryBoy');
 const Pricing = require('../models/pricing');
 const axios = require('axios');
@@ -31,7 +31,7 @@ exports.getUserData = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const user = await User.findByPk(userId, {
+        const user = await Employee.findByPk(userId, {
             attributes: ['name', 'phonenumber', 'email', 'role'],
         });
 
@@ -179,3 +179,23 @@ exports.getAutocomplete = async (req, res) => {
         res.status(500).json({ error: 'Error fetching data from Google Places API' });
     }
 };
+
+
+exports.getUserById = async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      const user = await Employee.findByPk(userId, {
+        attributes: ['name', 'phonenumber', 'email', 'role'],
+      });
+  
+      if (user) {
+        res.json(user);
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  };

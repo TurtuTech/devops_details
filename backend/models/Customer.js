@@ -52,7 +52,7 @@ const Customer = sequelize.define('Customer', {
     },   
 }, 
 {
-    tableName: 'customers',
+    tableName: 'Customers',
     timestamps: false,
 });
 

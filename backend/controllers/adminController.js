@@ -1,5 +1,5 @@
 require('dotenv').config({ path: './backend/.env' });
-const User = require('./../models/user');
+const Employee = require('./../models/employee');
 const Order = require('../models/order');
 const DeliveryBoy = require('../models/deliveryBoy');
 const AssignedOrder = require('../models/assignedOrder');
@@ -10,7 +10,7 @@ const { Op } = require('sequelize');
 // Fetch unapproved users
 exports.getUnapprovedUsers = async (req, res) => {
     try {
-        const unapprovedUsers = await User.findAll({ where: { isApproved: false } });
+        const unapprovedUsers = await Employee.findAll({ where: { isApproved: false } });
         res.json(unapprovedUsers);
     } catch (err) {
         console.error('Error fetching data:', err);
@@ -22,20 +22,20 @@ exports.getUnapprovedUsers = async (req, res) => {
 exports.acceptUser = async (req, res) => {
     const { id } = req.params;
     try {
-        const user = await User.findByPk(id);
-        if (!user) {
+        const employee = await Employee.findByPk(id);
+        if (!employee) {
             return res.status(404).json({ error: 'User not found' });
         }
-        if (user.role === 'delivery boy') {
+        if (employee.role === 'delivery boy') {
             try {
                 await DeliveryBoy.create({
-                    name: user.name,
-                    email: user.email,
-                    password: user.password,
-                    phonenumber: user.phonenumber,
-                    role: user.role,
+                    name: employee.name,
+                    email: employee.email,
+                    password: employee.password,
+                    phonenumber: employee.phonenumber,
+                    role: employee.role,
                     created_at: new Date(),
-                    user_id: user.id,
+                    user_id: employee.id,
                 });
                 console.log('Delivery boy data moved successfully');
             } catch (insertError) {
@@ -43,19 +43,19 @@ exports.acceptUser = async (req, res) => {
                 return res.status(500).json({ error: 'Failed to move data to delivery_boys table' });
             }
         }
-        user.isApproved = true;
-        await user.save();
+        employee.isApproved = true;
+        await employee.save();
 
         res.status(200).json({ message: 'Request accepted' });
 
         // Send approval email
         const ApprovedMessage = `
-        Dear ${user.name},
+        Dear ${employee.name},
         We’re excited to let you know that your account has been approved by our admin! You can now Login to your Account.
         Welcome to the Turtu family!
         Best regards, The Turtu Team
         `;
-        await sendEmail(user.email, 'Your Account Has Been Approved', ApprovedMessage);
+        await sendEmail(employee.email, 'Your Account Has Been Approved', ApprovedMessage);
     } catch (err) {
         console.error('Error updating request:', err);
         res.status(500).json({ error: 'Error updating request' });
@@ -66,7 +66,7 @@ exports.acceptUser = async (req, res) => {
 exports.rejectUser = async (req, res) => {
     const { id } = req.params;
     try {
-        const user = await User.findByPk(id);
+        const user = await Employee.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -194,8 +194,8 @@ exports.filterOrdersByDate = async (req, res) => {
 // Fetch registered users
 exports.getRegisteredUsers = async (req, res) => {
     try {
-        const userCount = await User.count();
-        const users = await User.findAll();
+        const userCount = await Employee.count();
+        const users = await Employee.findAll();
         res.json({ userCount, users });
     } catch (err) {
         console.error('Error fetching users:', err);

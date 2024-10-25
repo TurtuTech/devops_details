@@ -26,24 +26,7 @@
 //         res.status(500).json({ message: 'Internal Server Error' });
 //     }
 // });
-// router.get('/testusers/:userId', async (req, res) => {
-//   const { userId } = req.params;
 
-//   try {
-//       const user = await User.findByPk(userId, {
-//           attributes: ['name', 'phonenumber', 'email', 'role'], // Specify the fields you want
-//       });
-
-//       if (user) {
-//           res.json(user);
-//       } else {
-//           res.status(404).json({ message: 'User not found' });
-//       }
-//   } catch (err) {
-//       console.error('Error fetching user data:', err);
-//       res.status(500).json({ message: 'Internal Server Error' });
-//   }
-// });
 // router.get('/drivers',  async (req, res) => {
 //   try {
 //       const drivers = await DeliveryBoy.findAll({
@@ -199,5 +182,9 @@ router.get('/distance-matrix', orderManagementController.getDistanceMatrix);
 
 // Route to get autocomplete suggestions
 router.get('/autocomplete', orderManagementController.getAutocomplete);
+
+//User info or profile
+router.get('/testusers/:userId', orderManagementController.getUserById);
+
 
 module.exports = router;

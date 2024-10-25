@@ -1,9 +1,22 @@
+// Load environment variables from .env file
 require('dotenv').config({ path: './backend/.env' });
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const sequelize = require('./config/sequelize');
+const CareerApplication = require('../backend/models/careerApplication');
+const Contacts = require('../backend/models/contact'); 
+const User = require('../backend/models/user');
+const Employee = require('../backend/models/employee');
+const Order = require('../backend/models/order');
+const DeliveryBoy = require('../backend/models/deliveryBoy');
+const AssignedOrder = require('../backend/models/assignedOrder');
+const Token = require('../backend/models/token');
+const Customer = require('../backend/models/customer');
+const Pricing = require('../backend/models/pricing');
 const app = express();
 
+// Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
 // Import route modules
@@ -12,7 +25,6 @@ const userRoutes = require('./routes/user');
 const dataRoutes = require('./routes/data');
 const dataOrders = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
-const sequelize = require('./config/sequelize');
 
 // CORS configuration
 const allowedOrigins = process.env.CLIENT_URL.split(',');
@@ -25,7 +37,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  optionsSuccessStatus: 200 // For legacy browsers 
+  optionsSuccessStatus: 200, // For legacy browsers 
 };
 
 // Apply CORS middleware with specific options
@@ -36,16 +48,26 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/orders', dataOrders);
-app.use('/api/admin',adminRoutes);
- // Sync database models
+app.use('/api/admin', adminRoutes);
 
- const start = async () => {
+// Function to start the server and sync the database
+const start = async () => {
   try {
-    // Use alter to modify the tables according to model definitions
-    await sequelize.sync({ alter: false, force: false  }); 
+    // Sync all models
+    await sequelize.sync({ alter: false ,force: false });
+    await CareerApplication.sync();
+    await Contacts.sync();
+    await User.sync();
+    await Employee.sync();
+    await Order.sync();
+    await DeliveryBoy.sync();
+    await AssignedOrder.sync();
+    await Token.sync();
+    await Customer.sync();
+    await Pricing.sync();
     console.log('Database synced successfully');
-    
-    const PORT = process.env.PORT ; // Default to 5000 if PORT not set
+
+    const PORT = process.env.PORT || 5000; // Default to 5000 if PORT not set
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
     });
@@ -54,6 +76,7 @@ app.use('/api/admin',adminRoutes);
   }
 };
 
+// Call the start function
 start();
 
 // Error handling middleware
@@ -61,4 +84,3 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
-

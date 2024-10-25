@@ -27,7 +27,7 @@ const Pricing = sequelize.define('Pricing', {
         allowNull: false
     }
 }, {
-    tableName: 'pricing',
+    tableName: 'Pricing',
     timestamps: false // Set to true if you have timestamps in your table
 });
 
