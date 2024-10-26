@@ -106,7 +106,7 @@ exports.getBarData = async (req, res) => {
     if (view === 'monthly') {
         query = `
             SELECT DATE_FORMAT(createdAt, '%Y-%m') as date, COUNT(*) as count
-            FROM orderManage.orders
+            FROM orderManage.Orders
             WHERE createdAt >= NOW() - INTERVAL 12 MONTH
             GROUP BY DATE_FORMAT(createdAt, '%Y-%m')
             ORDER BY DATE_FORMAT(createdAt, '%Y-%m') DESC;
@@ -114,7 +114,7 @@ exports.getBarData = async (req, res) => {
     } else if (view === 'yearly') {
         query = `
             SELECT YEAR(createdAt) as date, COUNT(*) as count
-            FROM orderManage.orders
+            FROM orderManage.Orders
             WHERE createdAt >= NOW() - INTERVAL 5 YEAR
             GROUP BY YEAR(createdAt)
             ORDER BY YEAR(createdAt) DESC;
@@ -122,7 +122,7 @@ exports.getBarData = async (req, res) => {
     } else {
         query = `
           SELECT DATE(createdAt) as date, COUNT(*) as count
-          FROM orderManage.orders
+          FROM orderManage.Orders
           WHERE createdAt >= NOW() - INTERVAL 6 DAY
           GROUP BY DATE(createdAt)
           ORDER BY DATE(createdAt) DESC;

@@ -77,7 +77,7 @@ const AssignedOrder = sequelize.define('AssignedOrder', {
 },
   otp: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   deliveryInstructions: {
     type: DataTypes.TEXT,

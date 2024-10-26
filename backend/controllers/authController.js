@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config({ path: './backend/.env' });
-// const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const Employee = require('../models/employee');
@@ -13,14 +12,6 @@ const OTP_EXPIRATION_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
 const OTP_RESEND_TIME = 3 * 60 * 1000; // 3 minutes in milliseconds
 const JWT_EXPIRATION = '1hr';
 
-// // Create a nodemailer transporter instance
-// const transporter = nodemailer.createTransport({
-//   service: 'Gmail',
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
 
 // Utility functions
 const generateToken = (payload) => {

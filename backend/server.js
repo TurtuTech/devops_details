@@ -4,8 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const sequelize = require('./config/sequelize');
+const Contact = require('../backend/models/contact');
 const CareerApplication = require('../backend/models/careerApplication');
-const Contacts = require('../backend/models/contact'); 
 const User = require('../backend/models/user');
 const Employee = require('../backend/models/employee');
 const Order = require('../backend/models/order');
@@ -16,6 +16,7 @@ const Customer = require('../backend/models/customer');
 const Pricing = require('../backend/models/pricing');
 const app = express();
 
+
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 
@@ -25,6 +26,12 @@ const userRoutes = require('./routes/user');
 const dataRoutes = require('./routes/data');
 const dataOrders = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
+const webauthRoutes = require('./routes/webauthRoutes');
+const webuserRoutes = require('./routes/webuserRoutes');
+
+
+
+
 
 // CORS configuration
 const allowedOrigins = process.env.CLIENT_URL.split(',');
@@ -49,6 +56,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/orders', dataOrders);
 app.use('/api/admin', adminRoutes);
+app.use('/api/auth/web', webauthRoutes);
+app.use('/api/user/web', webuserRoutes);
 
 // Function to start the server and sync the database
 const start = async () => {
@@ -56,7 +65,7 @@ const start = async () => {
     // Sync all models
     await sequelize.sync({ alter: false ,force: false });
     await CareerApplication.sync();
-    await Contacts.sync();
+    await Contact.sync();
     await User.sync();
     await Employee.sync();
     await Order.sync();

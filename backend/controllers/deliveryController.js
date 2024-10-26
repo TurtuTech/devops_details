@@ -165,46 +165,57 @@ exports.fetchOrderById = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   const { orderId, status, driverUserId } = req.body;
 
+  // Validate request parameters
   if (!orderId || !status || !driverUserId) {
     return res.status(400).json({ message: 'Order ID, status, and driver user ID are required' });
   }
 
+  // Validate the status field
   if (!['active', 'picked', 'delivered'].includes(status)) {
     return res.status(400).json({ message: 'Invalid status value' });
   }
 
   try {
+    // Fetch the current order and assigned order simultaneously
     const [currentOrder, assignedOrder] = await Promise.all([
       Order.findByPk(orderId),
       AssignedOrder.findOne({ where: { order_id: orderId } })
     ]);
 
+    // Check if the order or assigned order exists
     if (!currentOrder || !assignedOrder) {
       return res.status(404).json({ message: 'Order or assigned order not found' });
     }
 
+    // Extract customer details
     const { email: customerEmail, name: customerName } = currentOrder;
     const deliveryOtp = assignedOrder.otp;
 
+    // Ensure the order has not already been delivered
     if (currentOrder.status === 'delivered') {
       return res.status(400).json({ message: 'Order is already delivered' });
     }
 
+    // Prevent status reversal from 'picked' to 'active'
     if (currentOrder.status === 'picked' && status === 'active') {
       return res.status(400).json({ message: 'Cannot revert to active from picked' });
     }
 
+    // Update the order status in both the Order and AssignedOrder tables
     await Promise.all([
       Order.update({ status }, { where: { id: orderId } }),
       AssignedOrder.update({ status }, { where: { order_id: orderId } })
     ]);
 
+    // Handle the case when the status is 'delivered'
     if (status === 'delivered') {
+      // Update driver availability
       const driver = await DeliveryBoy.findOne({ where: { user_id: driverUserId } });
       if (driver) {
         await driver.update({ available: 'available' });
       }
 
+      // Send the delivery confirmation email to the customer
       const customerDeliveredMessage = `
         Dear ${customerName},
         We are delighted to inform you that your order (ID: ${orderId}) has been successfully delivered.
@@ -215,7 +226,9 @@ exports.updateOrderStatus = async (req, res) => {
       await sendEmail(customerEmail, 'Order Successfully Delivered', customerDeliveredMessage);
     }
 
+    // Handle the case when the status is 'picked'
     if (status === 'picked') {
+      // Send the OTP email to the customer
       const customerOtpMessage = `
         Dear ${customerName},
         Your order with ID ${orderId} has been picked up and is on its way.
@@ -228,8 +241,10 @@ exports.updateOrderStatus = async (req, res) => {
       await sendEmail(customerEmail, 'Your Delivery OTP', customerOtpMessage);
     }
 
+    // Return a success response
     res.status(200).json({ message: 'Order status updated successfully' });
   } catch (err) {
+    // Log any error and return a 500 response
     console.error('Error updating order status:', err);
     res.status(500).json({ message: 'Error updating order status' });
   }
@@ -253,9 +268,9 @@ exports.verifyDeliveryOtp = async (req, res) => {
     }
 
     await AssignedOrder.update({ otp: null }, { where: { order_id: orderId } });
-    res.status(200).json({ message: 'OTP verified successfully' });
+    res.status(200).json({ message: 'OTP verified successfully',valid: true  });
   } catch (err) {
     console.error('Error verifying OTP:', err);
-    res.status(500).json({ message: 'Error verifying OTP' });
+    res.status(500).json({ message: 'Error verifying OTP',valid: false  });
   }
 };
