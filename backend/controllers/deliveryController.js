@@ -95,33 +95,35 @@ exports.assignOrder = async (req, res) => {
       return res.status(404).json({ error: 'Driver not found' });
     }
     const driverEmail = driver.email;
-
+    // Send notification to the customer
     const customerMessage = `
-      Dear ${order.name}, 
-      Your order with ID ${orderId} has been assigned to a driver. The driver details are as follows:
-      Name: ${driverName}
-      Phone Number: ${driverPhoneNumber}
-      Thank you for choosing Turtu.
-      Best regards,
-      The Turtu Team
-    `;
-    await sendEmail(order.email, 'Order Assigned', customerMessage);
+    Dear ${order.name},
 
+    Your order with ID ${orderId} has been assigned to a driver. The driver details are as follows:
+    Name: ${driverName}
+    Phone Number: ${driverPhoneNumber}
+
+    Thank you for choosing Turtu.
+
+    Best regards,
+    The Turtu Team
+  `;
+    // Assuming sendEmail is a function that takes an email message and sends it
+    await sendEmail(order.email, 'Order Assigned', customerMessage);
     const driverMessage = `
-      Dear ${driverName},
-      You have been assigned a new order with ID ${orderId}. The order details are as follows:
-      Pickup Address: ${order.pickupAddress}
-      Drop Address: ${order.dropAddress}
-      Content: ${order.content}
-      Weight: ${order.weight}
-      Pickup Date: ${order.pickupDate}
-      Pickup Time: ${order.pickupTime}
-      Please contact the customer if necessary.
-      Best regards,
-      The Turtu Team
-    `;
-    await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
-     
+    Dear ${driverName},
+    You have been assigned a new order with ID ${orderId}. The order details are as follows:
+    Pickup Address: ${order.pickupAddress}
+    Drop Address: ${order.dropAddress}
+    Content: ${order.content}
+    Weight: ${order.weight}
+    Pickup Date: ${order.pickupDate}
+    Pickup Time: ${order.pickupTime}
+    Please contact the customer if necessary.
+    Best regards,
+   The Turtu Team
+   `;
+ await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
     res.status(201).json({ message: 'Driver assigned successfully and emails sent!', assignedOrder });
   } catch (err) {
     console.error('Error assigning order:', err);
@@ -214,31 +216,30 @@ exports.updateOrderStatus = async (req, res) => {
       if (driver) {
         await driver.update({ available: 'available' });
       }
-
-      // Send the delivery confirmation email to the customer
       const customerDeliveredMessage = `
-        Dear ${customerName},
-        We are delighted to inform you that your order (ID: ${orderId}) has been successfully delivered.
-        Thank you for choosing Turtu! We hope you enjoy your purchase.
-        Best regards,
-        The Turtu Team
-      `;
-      await sendEmail(customerEmail, 'Order Successfully Delivered', customerDeliveredMessage);
+      Dear ${customerName},
+      We are delighted to inform you that your order (ID: ${orderId}) has been successfully delivered.
+      Thank you for choosing Turtu! We hope you enjoy your purchase.
+      Best regards,
+      The Turtu Team
+    `;
+  await sendEmail(customerEmail, 'Order Successfully Delivered', customerDeliveredMessage);
+  
     }
 
     // Handle the case when the status is 'picked'
     if (status === 'picked') {
       // Send the OTP email to the customer
       const customerOtpMessage = `
-        Dear ${customerName},
-        Your order with ID ${orderId} has been picked up and is on its way.
-        Please provide the following OTP to the delivery driver upon arrival:
-        OTP: ${deliveryOtp}
-        Thank you for choosing Turtu.
-        Best regards,
-        The Turtu Team
-      `;
-      await sendEmail(customerEmail, 'Your Delivery OTP', customerOtpMessage);
+      Dear ${customerName},
+      Your order with ID ${orderId} has been picked up and is on its way.
+      Please provide the following OTP to the delivery driver upon arrival:
+      OTP: ${deliveryOtp}
+      Thank you for choosing Turtu.
+      Best regards,
+      The Turtu Team
+    `;
+  await sendEmail(customerEmail, 'Your Delivery OTP',  customerOtpMessage);
     }
 
     // Return a success response

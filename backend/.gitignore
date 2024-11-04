@@ -10,8 +10,3 @@ INSERT INTO orderManage.pricing (id, base_distance, base_fare, extra_fare_per_km
 (4, 0, 0, 0, 16, 20, 120); -- Default values instead of NULL
 
 
-
-
-
-
-

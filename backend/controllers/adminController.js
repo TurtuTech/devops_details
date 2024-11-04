@@ -3,7 +3,7 @@ const Employee = require('./../models/employee');
 const Order = require('../models/order');
 const DeliveryBoy = require('../models/deliveryBoy');
 const AssignedOrder = require('../models/assignedOrder');
-const { sendEmail } = require('../services/emailConformations');
+const {sendEmail} = require('../services/emailConformations');
 const sequelize = require('../config/sequelize');
 const { Op } = require('sequelize');
 
@@ -53,15 +53,15 @@ exports.acceptUser = async (req, res) => {
         Dear ${employee.name},
         We’re excited to let you know that your account has been approved by our admin! You can now Login to your Account.
         Welcome to the Turtu family!
-        Best regards, The Turtu Team
+        Best regards,
+        The Turtu Team
         `;
-        await sendEmail(employee.email, 'Your Account Has Been Approved', ApprovedMessage);
+    await sendEmail(employee.email, 'Your Account Has Been Approved', ApprovedMessage);
     } catch (err) {
         console.error('Error updating request:', err);
         res.status(500).json({ error: 'Error updating request' });
     }
 };
-
 // Reject a user
 exports.rejectUser = async (req, res) => {
     const { id } = req.params;
@@ -70,17 +70,20 @@ exports.rejectUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-
         await User.destroy({ where: { id } });
         res.status(200).json({ message: 'Request rejected' });
-
         // Send rejection email
         const RejectMessage = `
         Dear ${user.name},
-        We regret to inform you that your account application has not been approved at this time. We appreciate your interest in joining Turtu.
-        Best regards, The Turtu Team
+        We regret to inform you that your account application has not been approved at this time. We appreciate your interest in joining Turtu and encourage you to reapply in the future.
+        If you have any questions or need further assistance, please feel free to reach out.
+        Thank you for your understanding.
+        Best regards,
+        The Turtu Team
         `;
-        await sendEmail(user.email, 'Your Account Application Status', RejectMessage);
+    await sendEmail(user.email, 'Your Account Application Status',  RejectMessage);
+    
+
     } catch (err) {
         console.error('Error deleting request:', err);
         res.status(500).json({ error: 'Error deleting request' });
@@ -90,7 +93,7 @@ exports.rejectUser = async (req, res) => {
 // Fetch active or picked orders
 exports.getAdminOrders = async (req, res) => {
     try {
-        const orders = await Order.findAll({ where: { status: ['active', 'picked'] } });
+        const orders = await AssignedOrder.findAll({ where: { status: ['active', 'picked'] } });
         res.json(orders);
     } catch (err) {
         console.error('Error fetching assigned orders:', err);

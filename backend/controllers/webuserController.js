@@ -47,7 +47,7 @@ exports.careerApplication = [
                 resume_filename: resume.originalname,
                 resume_data: resumeData
             });
-
+            
             // Send email notification
             await sendCareerEmail(email, req.user.username, profile, resume.originalname, resumeData);
 

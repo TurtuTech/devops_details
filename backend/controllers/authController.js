@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { Op } = require('sequelize');
 const Employee = require('../models/employee');
 const Token = require('../models/token'); 
-const { sendEmail } = require('../services/emailConformations'); // Adjust the path as needed
+const { sendEmail} = require('../services/emailConformations'); // Adjust the path as needed
 
 // Constants
 const OTP_EXPIRATION_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
@@ -40,7 +40,7 @@ const registerUser = async (req, res) => {
     otpExpires,
   });
 
-  await sendEmail(email, 'Your OTP Code', `Your OTP code is ${otp}`);
+await sendEmail(email, 'Your OTP Code', `Your OTP code is ${otp}`);
 
   res.status(201).json({
     user: {
