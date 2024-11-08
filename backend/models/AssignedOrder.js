@@ -20,11 +20,11 @@ const AssignedOrder = sequelize.define('AssignedOrder', {
     allowNull: false,
   },
   driver_name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(40),
     allowNull: false,
   },
   driver_phone_number: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   status: {
@@ -32,15 +32,15 @@ const AssignedOrder = sequelize.define('AssignedOrder', {
     allowNull: false,
   },
   phoneNumber: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(40),
     allowNull: false,
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(50),
     allowNull: false,
   },
   pickupAddress: {
@@ -68,15 +68,15 @@ const AssignedOrder = sequelize.define('AssignedOrder', {
     allowNull: true,
   },
   receiverPhonenumber: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   receiverName: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(40),
     allowNull: false,
 },
   otp: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(6),
     allowNull: true,
   },
   deliveryInstructions: {

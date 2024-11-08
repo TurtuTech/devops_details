@@ -8,11 +8,11 @@ const Employee = sequelize.define('Employee', {
     primaryKey: true,
   },
   name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(40),
     allowNull: false,
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(50),
     allowNull: false,
     unique: true,
   },
@@ -30,11 +30,11 @@ const Employee = sequelize.define('Employee', {
     field: 'created_at',
   },
   phonenumber: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   otp: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(6),
   },
   otpExpires: {
     type: DataTypes.DATE,

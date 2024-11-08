@@ -9,15 +9,15 @@ const Customer = sequelize.define('Customer', {
         primaryKey: true,
     },
     phoneNumber: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(10),
         allowNull: false,
     },
     name: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(40),
         allowNull: false,
     },
     email: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
         allowNull: false,
         unique: false,
     },
@@ -38,7 +38,7 @@ const Customer = sequelize.define('Customer', {
         allowNull: false,
     },
     receiverName: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(40),
         allowNull: false,
     },
     createdAt: {
@@ -47,7 +47,7 @@ const Customer = sequelize.define('Customer', {
         field: 'created_at',
     },
     receiverPhonenumber: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(10),
         allowNull: false,
     },   
 }, 

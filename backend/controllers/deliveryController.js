@@ -1,6 +1,6 @@
 // controllers/orderController.js
 require('dotenv').config({ path: './backend/.env' });
-const { sendEmail } = require('../services/emailConformations');
+const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
 const { generateOTP } = require('../services/genarateOtp');
 const Order = require('../models/order');
 const AssignedOrder = require('../models/assignedOrder');
@@ -96,34 +96,31 @@ exports.assignOrder = async (req, res) => {
     }
     const driverEmail = driver.email;
     // Send notification to the customer
-    const customerMessage = `
-    Dear ${order.name},
-
-    Your order with ID ${orderId} has been assigned to a driver. The driver details are as follows:
-    Name: ${driverName}
-    Phone Number: ${driverPhoneNumber}
-
-    Thank you for choosing Turtu.
-
-    Best regards,
-    The Turtu Team
-  `;
-    // Assuming sendEmail is a function that takes an email message and sends it
+    const customerMessage = createEmailTemplate(
+      'Order Assigned',
+      `Dear ${order.name},<br><br>
+      Your order with ID ${orderId} has been assigned to a driver. The driver details are as follows:<br>
+      Name: ${driverName}<br>
+      Phone Number: ${driverPhoneNumber}<br>
+      Thank you for choosing Turtu.`
+    );
+    
     await sendEmail(order.email, 'Order Assigned', customerMessage);
-    const driverMessage = `
-    Dear ${driverName},
-    You have been assigned a new order with ID ${orderId}. The order details are as follows:
-    Pickup Address: ${order.pickupAddress}
-    Drop Address: ${order.dropAddress}
-    Content: ${order.content}
-    Weight: ${order.weight}
-    Pickup Date: ${order.pickupDate}
-    Pickup Time: ${order.pickupTime}
-    Please contact the customer if necessary.
-    Best regards,
-   The Turtu Team
-   `;
- await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
+// Example of how you might call sendEmail
+const driverMessage = createEmailTemplate('New Order Assigned', `
+  Dear ${driverName},<br><br>
+  You have been assigned a new order with ID ${orderId}. The order details are as follows:<br>
+  Pickup Address: ${order.pickupAddress}<br>
+  Drop Address: ${order.dropAddress}<br>
+  Content: ${order.content}<br>
+  Weight: ${order.weight}<br>
+  Pickup Date: ${order.pickupDate}<br>
+  Pickup Time: ${order.pickupTime}<br>
+  customer number : ${order.phoneNumber}<br>
+  Please contact the customer if necessary.
+`);
+
+await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
     res.status(201).json({ message: 'Driver assigned successfully and emails sent!', assignedOrder });
   } catch (err) {
     console.error('Error assigning order:', err);
@@ -216,30 +213,29 @@ exports.updateOrderStatus = async (req, res) => {
       if (driver) {
         await driver.update({ available: 'available' });
       }
-      const customerDeliveredMessage = `
-      Dear ${customerName},
-      We are delighted to inform you that your order (ID: ${orderId}) has been successfully delivered.
-      Thank you for choosing Turtu! We hope you enjoy your purchase.
-      Best regards,
-      The Turtu Team
-    `;
-  await sendEmail(customerEmail, 'Order Successfully Delivered', customerDeliveredMessage);
-  
+      const customerDeliveredMessage =  createEmailTemplate(
+        'Order Successfully Delivered',
+        `Dear ${customerName},<br>
+        We are delighted to inform you that your order (ID: ${orderId}) has been successfully delivered.<br>
+        Thank you for choosing Turtu! We hope you enjoy your purchase.`
+    );
+    await sendEmail(customerEmail, 'Order Successfully Delivered', customerDeliveredMessage);
     }
-
     // Handle the case when the status is 'picked'
     if (status === 'picked') {
-      // Send the OTP email to the customer
-      const customerOtpMessage = `
-      Dear ${customerName},
-      Your order with ID ${orderId} has been picked up and is on its way.
-      Please provide the following OTP to the delivery driver upon arrival:
-      OTP: ${deliveryOtp}
-      Thank you for choosing Turtu.
-      Best regards,
-      The Turtu Team
-    `;
-  await sendEmail(customerEmail, 'Your Delivery OTP',  customerOtpMessage);
+// Prepare the body content with HTML formatting
+const customerOtpBody = `
+Dear ${customerName},<br><br>
+Your order with ID ${orderId} has been picked up and is on its way.<br>
+Please provide the following OTP to the delivery driver upon arrival:<br>
+<strong style="font-size: 24px; color: #007bff;">OTP: ${deliveryOtp}</strong><br><br>
+Thank you for choosing Turtu.<br>
+`;
+// Create the email message using the HTML template
+const customerOtpMessage =  createEmailTemplate('Your Delivery OTP', customerOtpBody);
+// Send the email
+await sendEmail(customerEmail, 'Your Delivery OTP', customerOtpMessage);
+
     }
 
     // Return a success response

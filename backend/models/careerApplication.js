@@ -9,15 +9,15 @@ const CareerApplication = sequelize.define('CareerApplication', {
         autoIncrement: true,
     },
     email: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(50),
         allowNull: false,
     },
     phone_number: {
-        type: DataTypes.STRING(20),
+        type: DataTypes.STRING(10),
         allowNull: false,
     },
     profile: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(20),
         allowNull: false,
     },
     resume_data: {
@@ -25,7 +25,7 @@ const CareerApplication = sequelize.define('CareerApplication', {
         allowNull: false,
     },
     resume_filename: {
-        type: DataTypes.STRING(255),
+        type: DataTypes.STRING(150),
         allowNull: false,
     },
     user_id: {

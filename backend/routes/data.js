@@ -216,7 +216,7 @@ const router = express.Router();
 const orderController = require('../controllers/orderController');
 const { tokenRequired } = require('../middlewares/webMiddleware');
 router.post('/submit', orderController.submitOrder);
-router.post('/create-razorpay-order', tokenRequired,orderController.createRazorpayOrder);
+router.post('/create-razorpay-order', orderController.createRazorpayOrder);
 router.post('/usersubmit', tokenRequired,orderController.userSubmitOrder);
 router.get('/userData', orderController.getUserData);
 

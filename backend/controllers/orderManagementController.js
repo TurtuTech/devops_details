@@ -3,6 +3,8 @@ const Customer = require('../models/customer');
 const Employee = require('../models/employee');
 const DeliveryBoy = require('../models/deliveryBoy');
 const Pricing = require('../models/pricing');
+const DistanceCache = require('../models/distanceCache');
+const AutocompleteCache = require('../models/autocompleteCache');
 const axios = require('axios');
 
 // Fetch customer data by phone number
@@ -139,46 +141,49 @@ exports.calculateFare = async (req, res) => {
     }
 };
 
-// Get distance matrix using Google Places API
-exports.getDistanceMatrix = async (req, res) => {
-    const { origins, destinations } = req.query;
-    const googlePlacesKey = process.env.GOOGLE_PLACES_API_KEY;
+// // Get distance matrix using Google Places API
+// exports.getDistanceMatrix = async (req, res) => {
+//     const { origins, destinations } = req.query;
+//     const googlePlacesKey = process.env.GOOGLE_PLACES_API_KEY;
 
-    try {
-        const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
-            params: {
-                origins,
-                destinations,
-                key: googlePlacesKey,
-            },
-        });
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error calculating distance:', error);
-        res.status(500).send('Error calculating distance');
-    }
-};
+//     try {
+//         const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+//             params: {
+//                 origins,
+//                 destinations,
+//                 key: googlePlacesKey,
+//             },
+//         });
+//         res.json(response.data);
+//     } catch (error) {
+//         console.error('Error calculating distance:', error);
+//         res.status(500).send('Error calculating distance');
+//     }
+// };
 
-// Get autocomplete suggestions using Google Places API
-exports.getAutocomplete = async (req, res) => {
-    const { input } = req.query;
-    const googlePlacesKey = process.env.GOOGLE_PLACES_API_KEY;
-    const locationbias = 'rectangle:11.5833,74.0379|18.5658,78.2271';
+// exports.getAutocomplete = async (req, res) => {
+//     const { input } = req.query;
+//     const googlePlacesKey = process.env.GOOGLE_PLACES_API_KEY;
+//     const location = '15.8497,74.4977'; // Latitude and Longitude of Belagavi, Karnataka
+//     const radius = 30000; // 10 kilometers radius
 
-    try {
-        const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
-            params: {
-                input,
-                key: googlePlacesKey,
-                locationbias,
-            },
-        });
-        res.json(response.data);
-    } catch (error) {
-        console.error('Error fetching from Google Places API:', error);
-        res.status(500).json({ error: 'Error fetching data from Google Places API' });
-    }
-};
+//     try {
+//         const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+//             params: {
+//                 input,
+//                 key: googlePlacesKey,
+//                 location,
+//                 radius,
+//                 components: 'country:in', // Restrict to India
+//                 strictbounds:true,
+//             },
+//         });
+//         res.json(response.data);
+//     } catch (error) {
+//         console.error('Error fetching from Google Places API:', error);
+//         res.status(500).json({ error: 'Error fetching data from Google Places API' });
+//     }
+// };
 
 
 exports.getUserById = async (req, res) => {
@@ -199,3 +204,88 @@ exports.getUserById = async (req, res) => {
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
+  // Get distance matrix using Google Places API with caching
+  exports.getDistanceMatrix = async (req, res) => {
+      const { origins, destinations } = req.query;
+  
+      // Check if the result is cached
+      const cachedResult = await DistanceCache.findOne({
+          where: { origin: origins, destination: destinations },
+      });
+  
+      if (cachedResult) {
+          return res.json({
+            distance_value: cachedResult.distance_value,
+          });
+      }
+      // If not cached, call Google Distance Matrix API
+      const googlePlacesKey = process.env.GOOGLE_PLACES_API_KEY;
+      try {
+          const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
+              params: {
+                  origins,
+                  destinations,
+                  key: googlePlacesKey,
+              },
+          });
+          const distance = response.data.rows[0].elements[0].distance.value;
+          const distanceInKm = (distance / 1000).toFixed(1);  // Convert meters to kilometers
+          // Store result in cache
+          await DistanceCache.create({
+              origin: origins,
+              destination: destinations,
+              distance_value: distanceInKm,  
+          });
+          res.json({ distance_value: distanceInKm });
+      } catch (error) {
+          console.error('Error calculating distance:', error);
+          res.status(500).send('Error calculating distance');
+      }
+  };
+exports.getAutocomplete = async (req, res) => {
+    const { input } = req.query;
+    try {
+        // Check cache for autocomplete data
+        const cachedAutocomplete = await AutocompleteCache.findOne({
+            where: { input }
+        });
+
+        if (cachedAutocomplete) {
+            console.log('Using cached autocomplete from database.',cachedAutocomplete.response);
+            return res.json({
+                predictions: cachedAutocomplete.response,
+                source: 'cache'
+            });
+        }
+
+        // If not cached, fetch from Google API
+        const googlePlacesKey = process.env.GOOGLE_PLACES_API_KEY;
+        const location = '15.8497,74.4977'; // Latitude and Longitude of Belagavi, Karnataka
+        const radius = 30000; // 10 kilometers radius
+
+        const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+            params: {
+                input,
+                key: googlePlacesKey,
+                location,
+                radius,
+                components: 'country:in',
+                strictbounds: true,
+            },
+        });
+
+        // Save to cache
+        await AutocompleteCache.create({
+            input,
+            response: response.data.predictions
+        });
+
+        res.json({
+            predictions: response.data.predictions,
+            source: 'api'
+        });
+    } catch (error) {
+        console.error('Error fetching from Google Places API:', error);
+        res.status(500).json({ error: 'Error fetching data from Google Places API' });
+    }
+};

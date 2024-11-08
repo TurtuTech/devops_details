@@ -13,12 +13,12 @@ const Contact = sequelize.define('Contact', {
     allowNull: false,
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(50),
     allowNull: false,
     unique: true, // Ensures email is unique
   },
   phone_number: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   queries: {

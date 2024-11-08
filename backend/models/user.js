@@ -8,17 +8,17 @@ const User = sequelize.define('User', {
         autoIncrement: true,
     },
     username: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(40),
         allowNull: false,
-        unique: true,
+        unique: false,
     },
     email: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
         allowNull: false,
         unique: true,
     },
     phone_number: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(10),
         allowNull: false,
         unique: true,
     },
@@ -27,7 +27,7 @@ const User = sequelize.define('User', {
         allowNull: false,
     },
     otp: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(6),
         allowNull: true,
     },
     otp_expiry: {
@@ -43,7 +43,7 @@ const User = sequelize.define('User', {
         defaultValue: DataTypes.NOW,
     },
     role: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(10),
         defaultValue: 'user',
     },
 });

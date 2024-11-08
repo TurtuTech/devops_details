@@ -223,14 +223,14 @@ const createEmailTemplate = (content) => {
     return `
         <div style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
             <div style="background-color: #007bff; color: white; padding: 20px; text-align: center;">
-                <h1 style="margin: 0;">Welcome to Turtu</h1>
+                <h1 style="margin: 0;">Welcome to TURTU</h1>
                 <p>Your partner in progress.</p>
             </div>
             <div style="padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;">
                 ${content}
             </div>
             <div style="background-color: #f1f1f1; color: #555; padding: 10px; text-align: center;">
-                <p style="margin: 0;">&copy; ${new Date().getFullYear()} Turtu. All rights reserved.</p>
+                <p style="margin: 0;">&copy; ${new Date().getFullYear()} TURTU. All rights reserved.</p>
             </div>
         </div>
     `;
@@ -239,7 +239,7 @@ const createEmailTemplate = (content) => {
 // General email sending function
 const sendEmail = async (to, subject, htmlContent) => {
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"TURTU Services" <${process.env.EMAIL_USER}>`,
         to,
         subject,
         html: htmlContent,

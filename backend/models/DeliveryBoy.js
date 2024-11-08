@@ -9,11 +9,11 @@ const DeliveryBoy = sequelize.define('DeliveryBoy', {
     primaryKey: true,
   },
   name: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(40),
     allowNull: false,
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(50),
     allowNull: false,
     unique: true,
   },
@@ -22,7 +22,7 @@ const DeliveryBoy = sequelize.define('DeliveryBoy', {
     allowNull: false,
   },
   phonenumber: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   role: {
@@ -38,11 +38,11 @@ const DeliveryBoy = sequelize.define('DeliveryBoy', {
     defaultValue: DataTypes.NOW,
     field: 'created_at',
   },
-  user_id: {
+  employee_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    field: 'user_id',
-  },
+    field: 'employee_id', // Update the field name
+},
 }, 
 {
   timestamps: false,
