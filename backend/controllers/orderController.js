@@ -43,7 +43,6 @@ const submitOrder = async (req, res) => {
                 weight,
             });
         }
-
         if (serviceType === "Delivery Now") {
             await Order.create({
                 phoneNumber,
