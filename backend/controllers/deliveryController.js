@@ -99,10 +99,10 @@ exports.assignOrder = async (req, res) => {
     const customerMessage = createEmailTemplate(
       'Order Assigned',
       `Dear ${order.name},<br><br>
-      Your order with ID ${orderId} has been assigned to a driver. The driver details are as follows:<br>
-      Name: ${driverName}<br>
-      Phone Number: ${driverPhoneNumber}<br>
-      Thank you for choosing Turtu.`
+      Your order with ID ${orderId} has been assigned to a driver. The driver details are as follows:<br><br>
+      Name: ${driverName}<br><br>
+      Phone Number: ${driverPhoneNumber}<br><br>
+      Thank you for choosing TURTU.`
     );
     
     await sendEmail(order.email, 'Order Assigned', customerMessage);
@@ -117,7 +117,8 @@ const driverMessage = createEmailTemplate('New Order Assigned', `
   Pickup Date: ${order.pickupDate}<br>
   Pickup Time: ${order.pickupTime}<br>
   customer number : ${order.phoneNumber}<br>
-  Please contact the customer if necessary.
+  Please contact the customer if necessary.<br>
+  Thank you for choosing TURTU.
 `);
 
 await sendEmail(driverEmail, 'New Order Assigned to you', driverMessage);
@@ -217,7 +218,7 @@ exports.updateOrderStatus = async (req, res) => {
         'Order Successfully Delivered',
         `Dear ${customerName},<br>
         We are delighted to inform you that your order (ID: ${orderId}) has been successfully delivered.<br>
-        Thank you for choosing Turtu! We hope you enjoy your purchase.`
+        Thank you for choosing TURTU! We hope you enjoy your purchase.`
     );
     await sendEmail(customerEmail, 'Order Successfully Delivered', customerDeliveredMessage);
     }
@@ -229,7 +230,7 @@ Dear ${customerName},<br><br>
 Your order with ID ${orderId} has been picked up and is on its way.<br>
 Please provide the following OTP to the delivery driver upon arrival:<br>
 <strong style="font-size: 24px; color: #007bff;">OTP: ${deliveryOtp}</strong><br><br>
-Thank you for choosing Turtu.<br>
+Thank you for choosing TURTU.
 `;
 // Create the email message using the HTML template
 const customerOtpMessage =  createEmailTemplate('Your Delivery OTP', customerOtpBody);

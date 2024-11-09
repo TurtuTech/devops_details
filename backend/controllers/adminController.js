@@ -53,7 +53,7 @@ exports.acceptUser = async (req, res) => {
             'Your Account Has Been Approved',
             `Dear ${employee.name},<br><br>
             We’re excited to let you know that your account has been approved by our admin! You can now log in to your account.<br>
-            Welcome to the Turtu family!`
+            Welcome to the TURTU family!`
         );
         await sendEmail (employee.email, 'Your Account Has Been Approved', ApprovedMessage);
     } catch (err) {
@@ -75,7 +75,7 @@ exports.rejectUser = async (req, res) => {
         const RejectMessage = createEmailTemplate(
             'Your Account Application Status',
             `Dear ${user.name},<br><br>
-            We regret to inform you that your account application has not been approved at this time. We appreciate your interest in joining Turtu and encourage you to reapply in the future.<br>
+            We regret to inform you that your account application has not been approved at this time. We appreciate your interest in joining TURTU and encourage you to reapply in the future.<br>
             If you have any questions or need further assistance, please feel free to reach out.`
         );
         await sendEmail(user.email, 'Your Account Application Status', RejectMessage);

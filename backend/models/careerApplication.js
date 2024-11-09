@@ -21,7 +21,7 @@ const CareerApplication = sequelize.define('CareerApplication', {
         allowNull: false,
     },
     resume_data: {
-        type: DataTypes.LONGBLOB,
+        type: DataTypes.BLOB('long'),
         allowNull: false,
     },
     resume_filename: {

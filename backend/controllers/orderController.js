@@ -3,6 +3,7 @@ const Customer = require('../models/customer');
 const Razorpay = require("razorpay");
 const crypto = require('crypto');
 require('dotenv').config({ path: './backend/.env' });
+const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -132,6 +133,7 @@ const userSubmitOrder = async (req, res) => {
     } = req.body;
 
     try {
+        // Verify Razorpay payment
         const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
         shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
         const digest = shasum.digest('hex');
@@ -153,6 +155,7 @@ const userSubmitOrder = async (req, res) => {
                 weight,
             });
         }
+
         const amountInRupees = (amount / 100).toFixed(2);
         const orderData = {
             customerId: serviceType === "Delivery Now" ? null : customer.id,
@@ -172,21 +175,41 @@ const userSubmitOrder = async (req, res) => {
             amount: amountInRupees,
             status: 'pending',
         };
+
         if (serviceType === "Delivery Now") {
             await Order.create(orderData);
-            return res.status(200).json({ message: 'Order created successfully' });
         } else if (serviceType === "Schedule for Later") {
             if (!pickupDate || !pickupTime) {
                 return res.status(400).json({ error: 'Pickup date and time are required for scheduled deliveries' });
             }
             orderData.pickupDate = pickupDate;
             orderData.pickupTime = pickupTime;
-
             await Order.create(orderData);
-            return res.status(200).json({ message: 'Order created successfully' });
         } else {
             return res.status(400).json({ error: 'Invalid service type' });
         }
+        // Send notification to the customer
+        const customerMessage = createEmailTemplate(
+            'Order Confirmation',
+            `
+                Dear ${name},<br><br>
+                Thank you for placing your order. Here are the details:<br>
+                - Order ID: ${razorpay_order_id}<br><br>
+                - Service Type: ${serviceType}<br><br>
+                - Pickup Address: ${pickupAddress}<br><br>
+                - Drop Address: ${dropAddress}<br><br>
+                - Weight: ${weight} kg<br><br>
+                - Amount: !Online Payment ₹${amountInRupees}<br><br>
+                We will keep you updated on the status of your delivery.<br><br>  `
+        );
+        try {
+            await sendEmail(email, 'Order Confirmation', customerMessage);
+            console.log('Order confirmation email sent successfully to', email);
+        } catch (error) {
+            console.error('Error sending order confirmation email:', error);
+        }
+
+        return res.status(200).json({ message: 'Order created successfully' });
     } catch (err) {
         console.error('Error processing order:', err.message);
         return res.status(500).json({ error: 'Internal Server Error', message: err.message });
