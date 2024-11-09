@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 const sendEmail = async (to, subject, htmlContent) => {
   const mailOptions = {
-    from: `"TURTU Services" <${process.env.EMAIL_USER}>`, 
+    from: `"TURTU" <${process.env.EMAIL_USER}>`, 
     to,
     subject,
     html: htmlContent, // Use 'html' instead of 'text' for HTML emails

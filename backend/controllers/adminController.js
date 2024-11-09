@@ -52,8 +52,9 @@ exports.acceptUser = async (req, res) => {
         const ApprovedMessage = createEmailTemplate(
             'Your Account Has Been Approved',
             `Dear ${employee.name},<br><br>
-            We’re excited to let you know that your account has been approved by our admin! You can now log in to your account.<br>
-            Welcome to the TURTU family!`
+            We’re thrilled to inform you that your application for the role of <strong>${employee.role}</strong> has been accepted by our admin!<br><br>
+            You can now log in to your account and start engaging with our platform.<br><br>
+            Welcome to the TURTU family!<br><br>`
         );
         await sendEmail (employee.email, 'Your Account Has Been Approved', ApprovedMessage);
     } catch (err) {
@@ -69,14 +70,16 @@ exports.rejectUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        await User.destroy({ where: { id } });
+        await Employee.destroy({ where: { id } });
         res.status(200).json({ message: 'Request rejected' });
         // Send rejection email
         const RejectMessage = createEmailTemplate(
             'Your Account Application Status',
             `Dear ${user.name},<br><br>
-            We regret to inform you that your account application has not been approved at this time. We appreciate your interest in joining TURTU and encourage you to reapply in the future.<br>
-            If you have any questions or need further assistance, please feel free to reach out.`
+            We regret to inform you that your application for the role of <strong>${user.role}</strong> has not been approved at this time.<br><br>
+            We appreciate your interest in joining TURTU and encourage you to reapply in the future if the opportunity arises.<br><br>
+            If you have any questions or need further assistance, please feel free to reach out.<br><br>
+            Thank you for choosing TURTU.`
         );
         await sendEmail(user.email, 'Your Account Application Status', RejectMessage);
     } catch (err) {

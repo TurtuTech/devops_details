@@ -109,15 +109,15 @@ exports.assignOrder = async (req, res) => {
 // Example of how you might call sendEmail
 const driverMessage = createEmailTemplate('New Order Assigned', `
   Dear ${driverName},<br><br>
-  You have been assigned a new order with ID ${orderId}. The order details are as follows:<br>
-  Pickup Address: ${order.pickupAddress}<br>
-  Drop Address: ${order.dropAddress}<br>
-  Content: ${order.content}<br>
-  Weight: ${order.weight}<br>
-  Pickup Date: ${order.pickupDate}<br>
-  Pickup Time: ${order.pickupTime}<br>
-  customer number : ${order.phoneNumber}<br>
-  Please contact the customer if necessary.<br>
+  You have been assigned a new order with ID ${orderId}. The order details are as follows:<br><br>
+  Pickup Address: ${order.pickupAddress}<br><br>
+  Drop Address: ${order.dropAddress}<br><br>
+  Content: ${order.content}<br><br>
+  Weight: ${order.weight}<br><br>
+  Pickup Date: ${order.pickupDate}<br><br>
+  Pickup Time: ${order.pickupTime}<br><br>
+  customer number : ${order.phoneNumber}<br><br>
+  Please contact the customer if necessary.<br><br>
   Thank you for choosing TURTU.
 `);
 
@@ -210,7 +210,7 @@ exports.updateOrderStatus = async (req, res) => {
     // Handle the case when the status is 'delivered'
     if (status === 'delivered') {
       // Update driver availability
-      const driver = await DeliveryBoy.findOne({ where: { user_id: driverUserId } });
+      const driver = await DeliveryBoy.findOne({ where: { employee_id: driverUserId } });
       if (driver) {
         await driver.update({ available: 'available' });
       }

@@ -200,7 +200,8 @@ const userSubmitOrder = async (req, res) => {
                 - Drop Address: ${dropAddress}<br><br>
                 - Weight: ${weight} kg<br><br>
                 - Amount: !Online Payment ₹${amountInRupees}<br><br>
-                We will keep you updated on the status of your delivery.<br><br>  `
+                We will keep you updated on the status of your delivery.<br><br>
+                Thank you for choosing TURTU. `
         );
         try {
             await sendEmail(email, 'Order Confirmation', customerMessage);
