@@ -208,7 +208,12 @@ exports.requestPasswordReset = async (req, res) => {
         }
 
         const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '30m' });
-        const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+      // Determine the correct client URL based on environment
+      const clientURL = process.env.NODE_ENV === 'production'
+      ? process.env.CLIENT_URL_PROD
+      : process.env.CLIENT_URL_LOCAL;
+
+        const resetLink = `${clientURL}/reset-password/${token}`;
 
         await sendPasswordResetEmail(email, resetLink);
         res.status(200).json({ status: 'success', message: 'A password reset link has been sent to your email.' });

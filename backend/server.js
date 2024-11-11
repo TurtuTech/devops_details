@@ -28,18 +28,21 @@ const adminRoutes = require('./routes/admin');
 const webauthRoutes = require('./routes/webauthRoutes');
 const webuserRoutes = require('./routes/webuserRoutes');
 
-// CORS configuration
-const allowedOrigins = process.env.CLIENT_URL.split(',');
+// Determine client URL based on environment
+const clientURL = process.env.NODE_ENV === 'production'
+    ? process.env.CLIENT_URL_PROD
+    : process.env.CLIENT_URL_LOCAL;
 
+// CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    if (!origin || origin === clientURL) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  optionsSuccessStatus: 200, // For legacy browsers 
+  optionsSuccessStatus: 200,
 };
 
 // Apply CORS middleware with specific options
