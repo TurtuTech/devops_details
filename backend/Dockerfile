@@ -56,7 +56,7 @@ FROM node:14
 WORKDIR /app
 
 # Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Install dependencies
 RUN npm install
@@ -64,8 +64,11 @@ RUN npm install
 # Copy all source code into the container
 COPY . .
 
+#set backend directory as the working directory to match file paths in the app
+WORKDIR /app/backend
+
 # Expose the port your app runs on (adjust if necessary)
-EXPOSE 3000
+EXPOSE 5000
 
 # Define the command to run your app
 CMD ["npm", "start"]

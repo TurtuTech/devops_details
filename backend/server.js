@@ -1,4 +1,3 @@
-// Load environment variables from .env file
 require('dotenv').config({ path: './backend/.env' });
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -28,10 +27,6 @@ const dataOrders = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
 const webauthRoutes = require('./routes/webauthRoutes');
 const webuserRoutes = require('./routes/webuserRoutes');
-
-
-
-
 
 // CORS configuration
 const allowedOrigins = process.env.CLIENT_URL.split(',');
