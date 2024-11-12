@@ -175,33 +175,39 @@ const userSubmitOrder = async (req, res) => {
             status: 'pending',
         };
 
+        let order; // Define the order variable outside the conditional blocks
+
         if (serviceType === "Delivery Now") {
-            await Order.create(orderData);
+            order = await Order.create(orderData);
         } else if (serviceType === "Schedule for Later") {
             if (!pickupDate || !pickupTime) {
                 return res.status(400).json({ error: 'Pickup date and time are required for scheduled deliveries' });
             }
             orderData.pickupDate = pickupDate;
             orderData.pickupTime = pickupTime;
-            await Order.create(orderData);
+            order = await Order.create(orderData);
         } else {
             return res.status(400).json({ error: 'Invalid service type' });
         }
-        // Send notification to the customer
+
+        // Now you can safely access the order.id
+        const orderId = order.id; // Get the order ID from the created order
+        
+        // Send notification to the customer after everything is completed
         const customerMessage = createEmailTemplate(
             'Order Confirmation',
-            `
-                Dear ${name},<br><br>
+            `Dear ${name},<br><br>
                 Thank you for placing your order. Here are the details:<br>
-                - Order ID: ${razorpay_order_id}<br><br>
-                - Service Type: ${serviceType}<br><br>
-                - Pickup Address: ${pickupAddress}<br><br>
-                - Drop Address: ${dropAddress}<br><br>
-                - Weight: ${weight} kg<br><br>
-                - Amount: !Online Payment ₹${amountInRupees}<br><br>
+                - Order ID: ${orderId}<br>
+                - Service Type: ${serviceType}<br>
+                - Pickup Address: ${pickupAddress}<br>
+                - Drop Address: ${dropAddress}<br>
+                - Weight: ${weight} kg<br>
+                - Amount: Online Payment ₹${amountInRupees}<br><br>
                 We will keep you updated on the status of your delivery.<br><br>
-                Thank you for choosing TURTU. `
+                Thank you for choosing TURTU.`
         );
+
         try {
             await sendEmail(email, 'Order Confirmation', customerMessage);
             console.log('Order confirmation email sent successfully to', email);
@@ -210,6 +216,7 @@ const userSubmitOrder = async (req, res) => {
         }
 
         return res.status(200).json({ message: 'Order created successfully' });
+
     } catch (err) {
         console.error('Error processing order:', err.message);
         return res.status(500).json({ error: 'Internal Server Error', message: err.message });

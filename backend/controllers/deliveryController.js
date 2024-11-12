@@ -99,7 +99,7 @@ exports.assignOrder = async (req, res) => {
     const customerMessage = createEmailTemplate(
       'Order Assigned',
       `Dear ${order.name},<br><br>
-      Your order with ID ${orderId} has been assigned to a driver. The driver details are as follows:<br><br>
+      Your order with (ID: ${orderId}) has been assigned to a driver. The driver details are as follows:<br><br>
        - Name: ${driverName}<br><br>
        -Phone Number: ${driverPhoneNumber}<br><br>
       Thank you for choosing TURTU.`
@@ -109,7 +109,7 @@ exports.assignOrder = async (req, res) => {
 // Example of how you might call sendEmail
 const driverMessage = createEmailTemplate('New Order Assigned', `
   Dear ${driverName},<br><br>
-  You have been assigned a new order with ID ${orderId}. The order details are as follows:<br><br>
+  You have been assigned a new order with (ID:${orderId}). The order details are as follows:<br><br>
    - Pickup Address: ${order.pickupAddress}<br><br>
    - Drop Address: ${order.dropAddress}<br><br>
    - Content: ${order.content}<br><br>
@@ -227,7 +227,7 @@ exports.updateOrderStatus = async (req, res) => {
 // Prepare the body content with HTML formatting
     const customerOtpBody = `
     Dear ${customerName},<br><br>
-    Your order with ID ${orderId} has been picked up and is on its way.<br>
+    Your order with (ID :${orderId}) has been picked up and is on its way.<br>
     Please provide the following OTP to the delivery driver upon arrival:<br>
     <strong style="font-size: 24px; color: #007bff;">OTP: ${deliveryOtp}</strong><br><br>
     Thank you for choosing TURTU.

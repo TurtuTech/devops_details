@@ -74,72 +74,72 @@ async function getPricing() {
     return await Pricing.findAll();
 }
 
-// Calculate distance fare
-async function calculateDistanceFare(distance) {
-    const pricing = await getPricing();
-    const distancePricing = pricing.find(p => p.weight_bracket_start === 0);
+// // Calculate distance fare
+// async function calculateDistanceFare(distance) {
+//     const pricing = await getPricing();
+//     const distancePricing = pricing.find(p => p.weight_bracket_start === 0);
 
-    const baseFare = distancePricing.base_fare;
-    const extraFarePerKm = distancePricing.extra_fare_per_km;
-    const baseDistance = distancePricing.base_distance;
+//     const baseFare = distancePricing.base_fare;
+//     const extraFarePerKm = distancePricing.extra_fare_per_km;
+//     const baseDistance = distancePricing.base_distance;
 
-    let distanceFare;
-    if (distance <= baseDistance) {
-        distanceFare = baseFare;
-    } else {
-        const extraDistance = distance - baseDistance;
-        const extraFare = extraDistance * extraFarePerKm;
-        distanceFare = baseFare + extraFare;
-    }
+//     let distanceFare;
+//     if (distance <= baseDistance) {
+//         distanceFare = baseFare;
+//     } else {
+//         const extraDistance = distance - baseDistance;
+//         const extraFare = extraDistance * extraFarePerKm;
+//         distanceFare = baseFare + extraFare;
+//     }
 
-    return { baseFare, extraFarePerKm, distanceFare };
-}
+//     return { baseFare, extraFarePerKm, distanceFare };
+// }
 
-// Calculate weight fare
-async function calculateWeightFare(weight) {
-    const pricing = await getPricing();
-    const weightPricing = pricing.find(p => weight > p.weight_bracket_start && weight <= p.weight_bracket_end);
+// // Calculate weight fare
+// async function calculateWeightFare(weight) {
+//     const pricing = await getPricing();
+//     const weightPricing = pricing.find(p => weight > p.weight_bracket_start && weight <= p.weight_bracket_end);
 
-    return weightPricing ? weightPricing.weight_fare : 0;
-}
+//     return weightPricing ? weightPricing.weight_fare : 0;
+// }
 
-// Calculate total fare
-async function calculateTotalFare(distance, weight) {
-    const { baseFare, extraFarePerKm, distanceFare } = await calculateDistanceFare(distance);
-    const weightFare = await calculateWeightFare(weight);
-    const totalFare = Math.ceil(distanceFare + weightFare);
+// // Calculate total fare
+// async function calculateTotalFare(distance, weight) {
+//     const { baseFare, extraFarePerKm, distanceFare } = await calculateDistanceFare(distance);
+//     const weightFare = await calculateWeightFare(weight);
+//     const totalFare = Math.ceil(distanceFare + weightFare);
 
-    return { totalFare, baseFare, extraFarePerKm,weightFare};
-}
+//     return { totalFare, baseFare, extraFarePerKm,weightFare};
+// }
 
-// Calculate fare based on distance and weight
-exports.calculateFare = async (req, res) => {
-    const { distance, weight } = req.body;
+// // Calculate fare based on distance and weight
+// exports.calculateFare = async (req, res) => {
+//     const { distance, weight } = req.body;
 
-    if (typeof distance !== 'number' || distance < 0) {
-        return res.status(400).json({ message: 'Invalid distance provided.' });
-    }
+//     if (typeof distance !== 'number' || distance < 0) {
+//         return res.status(400).json({ message: 'Invalid distance provided.' });
+//     }
 
-    if (typeof weight !== 'number' || weight < 0) {
-        return res.status(400).json({ message: 'Invalid weight provided.' });
-    }
+//     if (typeof weight !== 'number' || weight < 0) {
+//         return res.status(400).json({ message: 'Invalid weight provided.' });
+//     }
 
-    try {
-        const { totalFare, baseFare, extraFarePerKm,weightFare} = await calculateTotalFare(distance, weight);
+//     try {
+//         const { totalFare, baseFare, extraFarePerKm,weightFare} = await calculateTotalFare(distance, weight);
         
-        res.json({
-            totalAmount: `₹${totalFare}`,
-            baseFare: `₹${baseFare}`,
-            extraFarePerKm: `₹${extraFarePerKm}`,
-            weightFare: `₹${weightFare}`, 
-            distance,
-            weight,
-        });
-    } catch (err) {
-        console.error('Error calculating fare:', err);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
+//         res.json({
+//             totalAmount: `₹${totalFare}`,
+//             baseFare: `₹${baseFare}`,
+//             extraFarePerKm: `₹${extraFarePerKm}`,
+//             weightFare: `₹${weightFare}`, 
+//             distance,
+//             weight,
+//         });
+//     } catch (err) {
+//         console.error('Error calculating fare:', err);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// };
 
 // // Get distance matrix using Google Places API
 // exports.getDistanceMatrix = async (req, res) => {
@@ -185,6 +185,152 @@ exports.calculateFare = async (req, res) => {
 //     }
 // };
 
+
+
+// Calculate distance fare with additional 60% charge on extra distance
+// async function calculateDistanceFare(distance) {
+//     const pricing = await getPricing();
+//     const distancePricing = pricing.find(p => p.weight_bracket_start === 0);
+
+//     const baseFare = distancePricing.base_fare;
+//     const extraFarePerKm = distancePricing.extra_fare_per_km;
+//     const baseDistance = distancePricing.base_distance;
+
+//     let distanceFare;
+//     if (distance <= baseDistance) {
+//         distanceFare = baseFare;
+//     } else {
+//         const extraDistance = distance - baseDistance;
+//         const regularExtraFare = extraDistance * extraFarePerKm;
+//         const additionalCharge = extraDistance * (extraFarePerKm * 0.6); // 60% additional fare on extra distance
+
+//         distanceFare = baseFare + regularExtraFare + additionalCharge;
+//     }
+
+//     return { baseFare, extraFarePerKm, distanceFare };
+// }
+
+// // Calculate weight fare (no changes needed here)
+// async function calculateWeightFare(weight) {
+//     const pricing = await getPricing();
+//     const weightPricing = pricing.find(p => weight > p.weight_bracket_start && weight <= p.weight_bracket_end);
+
+//     return weightPricing ? weightPricing.weight_fare : 0;
+// }
+
+// // Calculate total fare
+// async function calculateTotalFare(distance, weight) {
+//     const { baseFare, extraFarePerKm, distanceFare } = await calculateDistanceFare(distance);
+//     const weightFare = await calculateWeightFare(weight);
+//     const totalFare = Math.ceil(distanceFare + weightFare);
+
+//     return { totalFare, baseFare, extraFarePerKm, weightFare };
+// }
+
+// // Calculate fare based on distance and weight
+// exports.calculateFare = async (req, res) => {
+//     const { distance, weight } = req.body;
+
+//     if (typeof distance !== 'number' || distance < 0) {
+//         return res.status(400).json({ message: 'Invalid distance provided.' });
+//     }
+
+//     if (typeof weight !== 'number' || weight < 0) {
+//         return res.status(400).json({ message: 'Invalid weight provided.' });
+//     }
+
+//     try {
+//         const { totalFare, baseFare, extraFarePerKm, weightFare } = await calculateTotalFare(distance, weight);
+        
+//         res.json({
+//             totalAmount: `₹${totalFare}`,
+//             baseFare: `₹${baseFare}`,
+//             extraFarePerKm: `₹${extraFarePerKm}`,
+//             weightFare: `₹${weightFare}`,
+//             distance,
+//             weight,
+//         });
+//     } catch (err) {
+//         console.error('Error calculating fare:', err);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// };
+
+
+async function calculateDistanceFare(distance) {
+    const pricing = await getPricing();
+    const distancePricing = pricing.find(p => p.weight_bracket_start === 0);
+
+    const baseFare = distancePricing.base_fare;
+    const extraFarePerKm = distancePricing.extra_fare_per_km;
+    const baseDistance = distancePricing.base_distance;
+
+    let distanceFare;
+    let additionalCharge = 0;
+
+    // Base fare for the initial distance
+    if (distance <= baseDistance) {
+        distanceFare = baseFare;
+    } else {
+        // Calculate extra fare for the distance exceeding the base distance
+        const extraDistance = distance - baseDistance;
+        const regularExtraFare = extraDistance * extraFarePerKm;
+
+        // Apply 60% additional charge only if the distance is more than 5 km
+        if (distance > 10) {
+            additionalCharge = regularExtraFare * 0.60;
+        }
+
+        // Calculate total distance fare including the additional charge
+        distanceFare = baseFare + regularExtraFare + additionalCharge;
+    }
+
+    return { baseFare, extraFarePerKm, distanceFare, additionalCharge };
+}
+
+async function calculateWeightFare(weight) {
+    const pricing = await getPricing();
+    const weightPricing = pricing.find(p => weight > p.weight_bracket_start && weight <= p.weight_bracket_end);
+
+    return weightPricing ? weightPricing.weight_fare : 0;
+}
+
+async function calculateTotalFare(distance, weight) {
+    const { baseFare, extraFarePerKm, distanceFare, additionalCharge } = await calculateDistanceFare(distance);
+    const weightFare = await calculateWeightFare(weight);
+    const totalFare = Math.ceil(distanceFare + weightFare); // Round up total fare
+
+    return { totalFare, baseFare, extraFarePerKm, weightFare, additionalCharge };
+}
+
+exports.calculateFare = async (req, res) => {
+    const { distance, weight } = req.body;
+
+    if (typeof distance !== 'number' || distance < 0) {
+        return res.status(400).json({ message: 'Invalid distance provided.' });
+    }
+
+    if (typeof weight !== 'number' || weight < 0) {
+        return res.status(400).json({ message: 'Invalid weight provided.' });
+    }
+
+    try {
+        const { totalFare, baseFare, extraFarePerKm, weightFare, additionalCharge } = await calculateTotalFare(distance, weight);
+
+        res.json({
+            totalAmount: `₹${totalFare}`,
+            baseFare: `₹${baseFare}`,
+            extraFarePerKm: `₹${extraFarePerKm}`,
+            weightFare: `₹${weightFare}`,
+            additionalCharge: `₹${additionalCharge}`, // Return additional charge
+            distance,
+            weight,
+        });
+    } catch (err) {
+        console.error('Error calculating fare:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 exports.getUserById = async (req, res) => {
     const { userId } = req.params;

@@ -224,7 +224,6 @@ const createEmailTemplate = (content) => {
         <div style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
             <div style="background-color: #007bff; color: white; padding: 20px; text-align: center;">
                 <h1 style="margin: 0;">Welcome to TURTU</h1>
-                <p>Your partner in progress.</p>
             </div>
             <div style="padding: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px;">
                 ${content}
