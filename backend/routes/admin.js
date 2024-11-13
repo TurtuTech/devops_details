@@ -258,6 +258,7 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 
+
 // Route to fetch unapproved users
 router.get('/nonapproval', adminController.getUnapprovedUsers);
 

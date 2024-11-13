@@ -1,4 +1,5 @@
 const Contact = require('../models/contact');
+require('dotenv').config();
 const CareerApplication = require('../models/careerApplication');
 const { sendCareerEmail, sendQueryContactEmail } = require('../services/webemails');
 const multer = require('multer');

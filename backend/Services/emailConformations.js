@@ -1,4 +1,5 @@
-require('dotenv').config({ path: './backend/.env' });
+require('dotenv').config();
+// require('dotenv').config({ path: './backend/.env' });
 const nodemailer = require('nodemailer');
 
 // Create a transporter object using SMTP transport
@@ -9,6 +10,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, // Ensure this is the correct app-specific password
   },
 });
+
+
 
 const sendEmail = async (to, subject, htmlContent) => {
   const mailOptions = {

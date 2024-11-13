@@ -1,6 +1,7 @@
+require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: './backend/.env' });
+// require('dotenv').config({ path: './backend/.env' });
 const crypto = require('crypto');
 const { Op } = require('sequelize');
 const Employee = require('../models/employee');

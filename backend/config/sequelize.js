@@ -1,4 +1,5 @@
-require('dotenv').config({ path: './backend/.env' });  // Load environment variables
+// require('dotenv').config({ path: './backend/.env' });  // Load environment variables
+require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
 

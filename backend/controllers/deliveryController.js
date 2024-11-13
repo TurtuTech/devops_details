@@ -1,5 +1,5 @@
-// controllers/orderController.js
-require('dotenv').config({ path: './backend/.env' });
+require('dotenv').config();
+// require('dotenv').config({ path: './backend/.env' });
 const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
 const { generateOTP } = require('../services/genarateOtp');
 const Order = require('../models/order');

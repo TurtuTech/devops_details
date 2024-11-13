@@ -1,4 +1,5 @@
-require('dotenv').config({ path: './backend/.env' });
+// require('dotenv').config({ path: './backend/.env' });
+require('dotenv').config();
 const Employee = require('./../models/employee');
 const Order = require('../models/order');
 const DeliveryBoy = require('../models/deliveryBoy');

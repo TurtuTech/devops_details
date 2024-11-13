@@ -1,7 +1,7 @@
-
+require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: './backend/.env' });
+// require('dotenv').config({ path: './backend/.env' });
 const moment = require('moment-timezone');
 const randomize = require('randomatic');
 const {sendOtpEmail, sendPasswordResetEmail } = require('../services/webemails');

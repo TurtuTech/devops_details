@@ -222,6 +222,7 @@ const router = express.Router();
 const checkTokenBlacklist = require('../middlewares/tokenMiddleware');
 const authController= require('../controllers/authController');
 
+
 // Routes
 router.post('/register',authController.registerUser);
 router.post('/verify-otp', authController.verifyOtp);

@@ -2,13 +2,15 @@ const Order = require('../models/order');
 const Customer = require('../models/customer');
 const Razorpay = require("razorpay");
 const crypto = require('crypto');
-require('dotenv').config({ path: './backend/.env' });
+// require('dotenv').config({ path: './backend/.env' });
+require('dotenv').config();
 const {sendEmail, createEmailTemplate} = require('../services/emailConformations');
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
+
 
 // Function to handle order submission
 const submitOrder = async (req, res) => {
