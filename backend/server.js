@@ -34,18 +34,25 @@ const clientURL = process.env.NODE_ENV === 'production'
     ? process.env.CLIENT_URL_PROD
     : process.env.CLIENT_URL_LOCAL;
 
-// CORS configuration
+
+// CORS configuration with logging
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || origin === clientURL) {
+    // Define allowed origins for production and local URLs
+    const allowedOrigins = [process.env.CLIENT_URL_PROD, process.env.CLIENT_URL_LOCAL];
+
+    console.log(`Incoming request from origin: ${origin}`); // Log the origin of each request
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      console.log(`Origin allowed: ${origin}`); // Log if the origin is allowed
       callback(null, true);
     } else {
+      console.log(`Origin denied: ${origin}`); // Log if the origin is denied
       callback(new Error('Not allowed by CORS'));
     }
   },
   optionsSuccessStatus: 200,
 };
-
 // Apply CORS middleware with specific options
 app.use(cors(corsOptions));
 
