@@ -40,9 +40,7 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Define allowed origins for production and local URLs
     const allowedOrigins = [process.env.CLIENT_URL_PROD, process.env.CLIENT_URL_LOCAL];
-
     console.log(`Incoming request from origin: ${origin}`); // Log the origin of each request
-
     if (!origin || allowedOrigins.includes(origin)) {
       console.log(`Origin allowed: ${origin}`); // Log if the origin is allowed
       callback(null, true);
