@@ -53,15 +53,16 @@
 FROM node:14
 
 # Create and set the working directory inside the container
-WORKDIR /app
+WORKDIR /app/backend
 
 # Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy all source code into the container
+COPY backend /app/backend
 COPY . .
 
 #set backend directory as the working directory to match file paths in the app
